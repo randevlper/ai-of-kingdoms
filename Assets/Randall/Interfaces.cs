@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-interface IDamageable
+public interface IDamageable
 {
     void Damage(float damage);
 }
 
-interface IHealable
+public interface IHealable
 {
     void Heal(float heal);
 }
 
-interface IStorage
+public interface IStorage
 {
     void Insert(int num);
     void Take(int num);
