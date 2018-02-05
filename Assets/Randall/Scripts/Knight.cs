@@ -14,13 +14,13 @@ public class Knight : MonoBehaviour, IDamageable, IHealable {
 		
 	}
 
-	void Damage(float damage)
+	public void Damage(float damage)
 	{
 
 	}
 
-	void Heal(float damage)
+	public void Heal(float health)
 	{
-		
+
 	}
 }
