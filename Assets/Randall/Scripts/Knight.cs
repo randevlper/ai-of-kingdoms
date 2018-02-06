@@ -8,18 +8,24 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
 {
 
     public float maxHP;
-    private float _HP;
+
+    [SerializeField] private float _HP;
     public float attack;
 
     public float detectionDistance;
-	public float detectionTime;
-	public float meleeCooldown;
-	public float meleeDistance;
-    public LayerMask detectionMask;
+    public float detectionTime;
+    public float meleeCooldown;
+    public float meleeDistance;
+
+    public int AINum;
+    //public LayerMask detectionMask;
     public NavMeshAgent navAgent;
     [HideInInspector] private Vector3 destination;
-    [HideInInspector] public GameObject target;
+    public GameObject target;
     UnityEvent action;
+
+	public Material flagMaterial;
+	public GameObject flag;
 
     //Idle if destination = position
     //Detecting
@@ -36,7 +42,27 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
         _HP = maxHP;
         action = new UnityEvent();
         action.AddListener(Idle);
-		Invoke("Detect", detectionTime);
+        Invoke("Detect", 0);
+
+        switch (AINum)
+        {
+            case 1:
+                tag = "AI1";
+                break;
+            case 2:
+                tag = "AI2";
+                break;
+            case 3:
+                tag = "AI3";
+                break;
+            case 4:
+                tag = "AI4";
+				break;
+            default:
+                break;
+        }
+
+		flag.GetComponent<MeshRenderer>().material = flagMaterial;
     }
 
     // Update is called once per frame
@@ -51,13 +77,6 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
         //Stand still and detect
     }
 
-    void Move()
-    {
-		//name.Split(' ')[0] = "Resource";
-        //Move and detect
-        navAgent.destination = destination;
-    }
-
     void Move(Vector3 pos)
     {
         destination = pos;
@@ -68,52 +87,59 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
         if (target == null)
         {
             SetState(Idle);
-			return;
+            return;
         }
-
-        navAgent.destination = target.transform.position;
-		Melee();
-        //Pursue and attack
+        else
+        {
+            navAgent.destination = target.transform.position;
+            Melee();
+            //Pursue and attack
+        }
     }
 
-	void Melee()
-	{
-		if(Vector3.Distance(target.transform.position, transform.position) < meleeDistance)
-		{
-			target.GetComponent<IDamageable>().Damage(attack * Time.deltaTime);
-		}
-	}
+    void Melee()
+    {
+
+        if (Vector3.Distance(target.transform.position, transform.position) < meleeDistance)
+        {
+            IDamageable other = target.GetComponent<IDamageable>();
+            if (other != null)
+            {
+                other.Damage(attack * Time.deltaTime);
+            }
+        }
+    }
 
     void Detect()
     {
         //Check if an enemy is visible and attack them
         RaycastHit[] hits =
-            Physics.SphereCastAll(transform.position, detectionDistance, transform.forward, detectionMask);
+            Physics.SphereCastAll(transform.position, detectionDistance, transform.forward);
 
         for (int i = 0; i < hits.Length; ++i)
         {
             //Debug.Log(hits[i].collider.name);
-            //IDamageable other = hits[i].collider.gameObject.GetComponent<IDamageable>();
-            if (hits[i].collider.gameObject.tag != tag)
+            IDamageable other = hits[i].collider.gameObject.GetComponent<IDamageable>();
+            if (hits[i].collider.gameObject.tag != tag && other != null)
             {
                 //Attack only closest
                 if (target != null)
                 {
-					if (Vector3.Distance(hits[i].collider.transform.position, transform.position) 
-						< Vector3.Distance(target.transform.position, transform.position))
-					{
-						target = hits[i].collider.gameObject;
-					}
+                    if (Vector3.Distance(hits[i].collider.transform.position, transform.position)
+                        < Vector3.Distance(target.transform.position, transform.position))
+                    {
+                        target = hits[i].collider.gameObject;
+                    }
                 }
                 else
                 {
                     target = hits[i].collider.gameObject;
+                    SetState(Attack);
                 }
-                SetState(Attack);
             }
         }
 
-		Invoke("Detect", 1f);
+        Invoke("Detect", detectionTime);
     }
 
     void SetState(UnityAction call)
@@ -122,11 +148,11 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
         action.AddListener(call);
     }
 
-	void OnDrawGizmos()
-	{
-		Gizmos.color = Color.red;
-		Gizmos.DrawWireSphere(transform.position,detectionDistance);
-	}
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, detectionDistance);
+    }
 
     //Vector3
 
