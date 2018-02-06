@@ -10,6 +10,9 @@ public class GetResource : MonoBehaviour
     NavMeshAgent agent;
 
     public bool toNode;
+    public float resources;
+    public float gatherSpeed;
+    public int backpackCapacity;
 
     // Use this for initialization
     void Start ()
@@ -25,7 +28,11 @@ public class GetResource : MonoBehaviour
             agent.destination = node.position;
             if(pathComplete())
             {
-                toNode = !true;
+                resources += gatherSpeed;
+                if (resources >= backpackCapacity)
+                {
+                    toNode = !true;
+                }
             }
         }
         else if (toNode == false)
@@ -33,7 +40,14 @@ public class GetResource : MonoBehaviour
             agent.destination = dropOff.position;
             if (pathComplete())
             {
-                toNode = !false;
+                //CHeck if this gameobject had a IStorage
+                //Insert resources
+
+                resources -= gatherSpeed;
+                if (resources <= 0)
+                {
+                    toNode = !false;
+                }
             }
         }
     }
