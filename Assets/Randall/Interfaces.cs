@@ -15,5 +15,9 @@ public interface IHealable
 public interface IStorage
 {
     void Insert(int num);
-    void Take(int num);
+}
+
+public interface IAI
+{
+    void SetAI(int num, Material mat);
 }

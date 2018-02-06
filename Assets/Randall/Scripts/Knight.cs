@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
 
-public class Knight : MonoBehaviour, IDamageable, IHealable
+public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 {
 
     public float maxHP;
@@ -16,6 +16,9 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
     public float detectionTime;
     public float meleeCooldown;
     public float meleeDistance;
+    private float meleeTimer;
+    public float critChance;
+    public float critMultiplier;
 
     public int AINum;
     //public LayerMask detectionMask;
@@ -24,8 +27,10 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
     public GameObject target;
     UnityEvent action;
 
-	public Material flagMaterial;
-	public GameObject flag;
+    Stack<UnityAction> calls;
+
+    public Material flagMaterial;
+    public GameObject flag;
 
     //Idle if destination = position
     //Detecting
@@ -44,31 +49,17 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
         action.AddListener(Idle);
         Invoke("Detect", 0);
 
-        switch (AINum)
-        {
-            case 1:
-                tag = "AI1";
-                break;
-            case 2:
-                tag = "AI2";
-                break;
-            case 3:
-                tag = "AI3";
-                break;
-            case 4:
-                tag = "AI4";
-				break;
-            default:
-                break;
-        }
-
-		flag.GetComponent<MeshRenderer>().material = flagMaterial;
+        calls = new Stack<UnityAction>();
+        calls.Push(Idle);
+        calls.Push(Move);
     }
 
     // Update is called once per frame
     void Update()
     {
-        action.Invoke();
+        //action.Invoke();
+        calls.Peek().Invoke();
+        meleeTimer += Time.deltaTime;
     }
 
     void Idle()
@@ -77,16 +68,38 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
         //Stand still and detect
     }
 
-    void Move(Vector3 pos)
+    void Move()
+    {
+        navAgent.destination = destination;
+
+        if (transform.position == destination)
+        {
+            calls.Pop();
+        }
+    }
+
+    public void Move(Vector3 pos)
     {
         destination = pos;
+
+        if (calls == null) { return; }
+        if (!(calls.Peek() == Attack))
+        {
+            if (calls.Peek() == Move)
+            {
+                calls.Pop();
+            }
+            calls.Push(Move);
+        }
     }
 
     void Attack()
     {
         if (target == null)
         {
-            SetState(Idle);
+            //SetState(Idle);
+            calls.Pop();
+            Detect(true);
             return;
         }
         else
@@ -103,14 +116,58 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
         if (Vector3.Distance(target.transform.position, transform.position) < meleeDistance)
         {
             IDamageable other = target.GetComponent<IDamageable>();
-            if (other != null)
+            if (other != null && meleeTimer > meleeCooldown)
             {
-                other.Damage(attack * Time.deltaTime);
+                if (Random.Range(0f, 1f) < critChance)
+                {
+                    other.Damage(critMultiplier * attack);
+                }
+                else
+                {
+                    other.Damage(attack);
+                }
+                meleeTimer = 0;
             }
         }
     }
 
     void Detect()
+    {
+        //Check if an enemy is visible and attack them
+        RaycastHit[] hits =
+            Physics.SphereCastAll(transform.position, detectionDistance, transform.forward, detectionDistance);
+
+        for (int i = 0; i < hits.Length; ++i)
+        {
+            //Debug.Log(hits[i].collider.name);
+            IDamageable other = hits[i].collider.gameObject.GetComponent<IDamageable>();
+            if (hits[i].collider.gameObject.tag != tag && other != null)
+            {
+                //Attack only closest
+                if (target != null)
+                {
+                    if (Vector3.Distance(hits[i].collider.transform.position, transform.position)
+                        < Vector3.Distance(target.transform.position, transform.position))
+                    {
+                        target = hits[i].collider.gameObject;
+                    }
+                }
+                else
+                {
+                    target = hits[i].collider.gameObject;
+                    //SetState(Attack);
+                    if (calls.Peek() != Attack)
+                    {
+                        calls.Push(Attack);
+                    }
+                }
+            }
+        }
+
+        Invoke("Detect", detectionTime);
+    }
+
+    void Detect(bool isNotRecursive)
     {
         //Check if an enemy is visible and attack them
         RaycastHit[] hits =
@@ -134,19 +191,21 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
                 else
                 {
                     target = hits[i].collider.gameObject;
-                    SetState(Attack);
+                    //SetState(Attack);
+                    if (calls.Peek() != Attack)
+                    {
+                        calls.Push(Attack);
+                    }
                 }
             }
         }
-
-        Invoke("Detect", detectionTime);
     }
 
-    void SetState(UnityAction call)
-    {
-        action.RemoveAllListeners();
-        action.AddListener(call);
-    }
+    // void SetState(UnityAction call)
+    // {
+    //     action.RemoveAllListeners();
+    //     action.AddListener(call);
+    // }
 
     void OnDrawGizmos()
     {
@@ -179,6 +238,29 @@ public class Knight : MonoBehaviour, IDamageable, IHealable
         {
             health = maxHP;
         }
+    }
+
+    public void SetAI(int num, Material mat)
+    {
+        switch (num)
+        {
+            case 1:
+                tag = "AI1";
+                break;
+            case 2:
+                tag = "AI2";
+                break;
+            case 3:
+                tag = "AI3";
+                break;
+            case 4:
+                tag = "AI4";
+                break;
+            default:
+                break;
+        }
+
+        flag.GetComponent<MeshRenderer>().material = mat;
     }
 
 }
