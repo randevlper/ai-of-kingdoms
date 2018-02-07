@@ -15,7 +15,7 @@ public interface IHealable
 
 public interface IStorage
 {
-    void Insert(int num);
+    void Insert(float num);
 }
 
 public interface IAI

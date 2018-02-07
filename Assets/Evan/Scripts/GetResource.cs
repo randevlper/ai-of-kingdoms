@@ -113,7 +113,7 @@ public class GetResource : MonoBehaviour,IDamageable
             {
                 if(baseStorage != null)
                 {
-                    baseStorage.Insert((int)(gatherSpeed * Time.deltaTime));
+                    baseStorage.Insert((gatherSpeed * Time.deltaTime));
                 }
                 
 

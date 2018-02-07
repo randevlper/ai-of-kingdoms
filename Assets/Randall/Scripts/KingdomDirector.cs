@@ -9,7 +9,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public int AINum;
     public float maxHP;
     [HideInInspector] [SerializeField] private float HP;
-    [SerializeField] private int resources;
+    [SerializeField] private float resources;
     public int resourceIncrease;
 
     public Material colorMat;
@@ -211,7 +211,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
         Destroy(gameObject);
     }
 
-    public void Insert(int num)
+    public void Insert(float num)
     {
         resources += num;
     }
