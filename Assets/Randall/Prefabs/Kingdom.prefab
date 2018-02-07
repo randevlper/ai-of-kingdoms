@@ -278,12 +278,12 @@ MonoBehaviour:
   serfPrefab: {fileID: 1030490685686898, guid: 4732f61c5a5cb5648b2e2b7e904420d1, type: 2}
   serfCost: 1
   serfSpawn: {fileID: 1728478889945828}
+  maxSerfs: 0
   enemyBases: []
   nodes: []
   knights: []
   serfs: []
   attackPos: {fileID: 0}
-  maxSerfs: 0
   healthPerSecond: 10
   detectionDistance: 25
   detectionDelay: 0.25

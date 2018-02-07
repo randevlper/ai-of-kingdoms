@@ -6,12 +6,15 @@ using UnityEngine.Events;
 
 public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 {
-
+    [Header("Stats")]
     public float maxHP;
 
     [SerializeField] private float _HP;
     public float attack;
+    public float speed;
+    public float runningMultiplier;
 
+    [Header("Combat")]
     public float detectionDistance;
     public float detectionTime;
     public float meleeCooldown;
@@ -19,6 +22,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     private float meleeTimer;
     public float critChance;
     public float critMultiplier;
+
 
     public KingdomDirector kingdom;
     public int AINum;
@@ -30,16 +34,16 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 
     Stack<UnityAction> calls;
 
+    [Header("Color Settings")]
     public Material flagMaterial;
     public GameObject flag;
 
+
     private bool isHealing;
+    [Header("Retreat Settings")]
     public float healPercent;
     private bool isRunning;
     public float criticalPercent;
-
-    public float speed;
-    public float runningMultiplier;
 
     //Idle if destination = position
     //Detecting
@@ -104,12 +108,8 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         destination = pos;
 
         if (calls == null) { return; }
-        if (!(calls.Peek() == Attack))
+        if (!(calls.Peek() == Attack) && calls.Peek() != Move)
         {
-            if (calls.Peek() == Move)
-            {
-                calls.Pop();
-            }
             calls.Push(Move);
         }
     }

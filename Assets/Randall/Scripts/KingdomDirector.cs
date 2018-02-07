@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 {
+
+    [Header("Kingdom Setting")]
     public int AINum;
     public float maxHP;
     [HideInInspector] [SerializeField] private float HP;
@@ -12,6 +14,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     public Material colorMat;
 
+    [Header("Spawn Settings")]
     public GameObject knightPrefab;
     public int knightCost;
     public GameObject knightSpawn;
@@ -19,16 +22,22 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public GameObject serfPrefab;
     public int serfCost;
     public GameObject serfSpawn;
+    public int maxSerfs;
 
+    [Header("Other Things")]
     [SerializeField] private GameObject[] enemyBases;
     [SerializeField] private List<GameObject> nodes;
+
+    [Header("Spawned Things")]
     [SerializeField] private List<GameObject> knights;
     [SerializeField] private List<GameObject> serfs;
 
     public GameObject attackPos;
 
-    public int maxSerfs;
+    [Header("Heal Settings")]
     public float healthPerSecond;
+
+    [Header("Enemy Detection Settings")]
     public float detectionDistance;
     public float detectionDelay;
     public bool isEnemyAttacking;
@@ -61,7 +70,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     // Update is called once per frame
     void Update()
     {
-        //TODO: Decide between serf or Knigh
+        //TODO: Decide between serf or Knight
 
         if (serfs.Count < maxSerfs)
         {
