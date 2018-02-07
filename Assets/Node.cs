@@ -6,10 +6,13 @@ public class Node : MonoBehaviour
 {
     public float detectionDistance;
 
+    //These are only guards of the same kingdom
+    public GameObject[] guards;
+
+
     // Use this for initialization
     void Start()
     {
-
     }
 
     // Update is called once per frame
@@ -45,4 +48,16 @@ public class Node : MonoBehaviour
     //If AI in sphere overlap start capture
     //If two or more pause capture
     //Once captured heal AI
+    void CheckCaptureStatus()
+    {
+
+    }
+
+    //Send message on capture to guards of old kingdom that they are now IDLE
+    //Clear guards array
+    //Send message to kingdom that their node is caputred
+    void Capture()
+    {
+
+    }
 }

@@ -25,11 +25,12 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public int maxSerfs;
 
     [Header("Other Things")]
-    [SerializeField] private GameObject[] enemyBases;
-    [SerializeField] private List<GameObject> nodes;
+    public GameManager manager;
+    //[SerializeField] private GameObject[] enemyBases;
+    //[SerializeField] private List<GameObject> nodes;
 
     [Header("Spawned Things")]
-    [SerializeField] private List<GameObject> knights;
+    [SerializeField] public List<GameObject> knights;
     [SerializeField] private List<GameObject> serfs;
 
     public GameObject attackPos;
@@ -65,41 +66,37 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
                 break;
         }
         CheckForEnemy();
+
+        Invoke("SpawnKnight", 1f);
     }
 
     // Update is called once per frame
     void Update()
     {
-        //TODO: Decide between serf or Knight
-
-        if (serfs.Count < maxSerfs)
+        //TODO: Decide between serf or Knight to create
+        //DecideTarget();
+        for (int i = 0; i < knights.Count; i++)
         {
-            CreateSerf();
-        }
-        else
-        {
-            SpawnKnight();
-        }
-
-        DecideTarget();
-        if (attackPos != null)
-        {
-            for (int i = 0; i < knights.Count; i++)
+            //TODO: Don't get components every frame]
+            Knight knight = knights[i].GetComponent<Knight>();
+            if(knight.currentState == Knight.States.IDLE)
             {
-                if (knights[i] != null)
+                GameObject baseToAttack = null;
+                for (int b = 0; b < manager.bases.Length; b++)
                 {
-                    IHealable health = knights[i].GetComponent<IHealable>();
-                    Knight knight = knights[i].GetComponent<Knight>();
-
-                    if (health.GetIsHealing())
+                    if(manager.bases[b] != gameObject && manager.bases[b].activeInHierarchy)
                     {
-                        knight.Move(transform.position);
+                        baseToAttack = manager.bases[b];
                     }
-                    //if (attackPos.transform.position != Vector3.zero)
-                    else if (IsAnyEnemyLeft())
-                    {
-                        knight.Move(attackPos.transform.position);
-                    }
+                }
+                if( baseToAttack != null)
+                {
+                    knight.SetAttackObjective(baseToAttack);
+                }
+                else
+                {
+                    Debug.Log("DEFEND ME");
+                    knight.SetDefenseObjective(gameObject);
                 }
             }
         }
@@ -112,27 +109,6 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     void DecideTarget()
     {
-        if (enemyBases.Length > 0)
-        {
-            GameObject closestEnemy = null;
-            for (int i = 0; i < enemyBases.Length; ++i)
-            {
-                if (enemyBases[i] == null) { continue; }
-                if (closestEnemy == null)
-                {
-                    closestEnemy = enemyBases[i];
-                }
-                else
-                {
-                    if (Vector3.Distance(enemyBases[i].transform.position, transform.position) <
-                        Vector3.Distance(closestEnemy.transform.position, transform.position))
-                    {
-                        closestEnemy = enemyBases[i];
-                    }
-                }
-            }
-            attackPos = closestEnemy;
-        }
     }
 
     void AddResource()
@@ -176,7 +152,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
             obj.tag = tag;
             GetResource objScript = obj.GetComponent<GetResource>();
-            objScript.node = nodes[0].transform;
+            // /objScript.node = nodes[0].transform;
             objScript.dropOff = gameObject.transform;
 
             return true;
@@ -208,7 +184,8 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     void Death()
     {
-        Destroy(gameObject);
+        gameObject.SetActive(false);
+        //Destroy(gameObject);
     }
 
     public void Insert(float num)
@@ -255,17 +232,5 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
         }
 
         Invoke("CheckForEnemy", detectionDelay);
-    }
-
-    bool IsAnyEnemyLeft()
-    {
-        for (int i = 0; i < enemyBases.Length; ++i)
-        {
-            if(enemyBases[i] != null)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }
