@@ -20,11 +20,11 @@ GameObject:
   m_Component:
   - component: {fileID: 4182901387084488}
   - component: {fileID: 114951149823815604}
+  - component: {fileID: 195159010868547808}
   - component: {fileID: 33507245520057674}
   - component: {fileID: 136588502257129182}
   - component: {fileID: 23687317733631458}
   - component: {fileID: 54353980920369826}
-  - component: {fileID: 195159010868547808}
   - component: {fileID: 208650270688568172}
   m_Layer: 0
   m_Name: Worker
@@ -115,9 +115,10 @@ MonoBehaviour:
   dropOff: {fileID: 0}
   toNode: 1
   resources: 0
-  gatherSpeed: 0.1
+  gatherSpeed: 10
   backpackCapacity: 30
-  resourcesLeft: 0
+  detectionDistance: 5
+  health: 100
 --- !u!136 &136588502257129182
 CapsuleCollider:
   m_ObjectHideFlags: 1

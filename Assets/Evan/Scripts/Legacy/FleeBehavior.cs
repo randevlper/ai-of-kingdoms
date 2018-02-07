@@ -14,7 +14,7 @@ public class FleeBehavior : MonoBehaviour
 
     }
 
-    // Update is called once per frame
+    ////Update is called once per frame
     //void Update()
     //{
     //    dVelocity = speed * ((target.position + transform.position).normalized);
