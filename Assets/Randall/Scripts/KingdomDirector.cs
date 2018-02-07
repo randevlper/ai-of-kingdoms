@@ -27,6 +27,12 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     public GameObject attackPos;
 
+    public int maxSerfs;
+    public float healthPerSecond;
+    public float detectionDistance;
+    public float detectionDelay;
+    public bool isEnemyAttacking;
+
     // Use this for initialization
     void Start()
     {
@@ -49,25 +55,50 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             default:
                 break;
         }
+        CheckForEnemy();
     }
 
     // Update is called once per frame
     void Update()
     {
-        CreateUnit(knightPrefab, knightCost, ref knights, knightSpawn);
+        //TODO: Decide between serf or Knigh
+
+        if (serfs.Count < maxSerfs)
+        {
+            CreateSerf();
+        }
+        else
+        {
+            SpawnKnight();
+        }
 
         DecideTarget();
-
         if (attackPos != null)
         {
             for (int i = 0; i < knights.Count; i++)
             {
                 if (knights[i] != null)
                 {
-                    knights[i].GetComponent<Knight>().Move(attackPos.transform.position);
+                    IHealable health = knights[i].GetComponent<IHealable>();
+                    Knight knight = knights[i].GetComponent<Knight>();
+
+                    if (health.GetIsHealing())
+                    {
+                        knight.Move(transform.position);
+                    }
+                    //if (attackPos.transform.position != Vector3.zero)
+                    else if (IsAnyEnemyLeft())
+                    {
+                        knight.Move(attackPos.transform.position);
+                    }
                 }
             }
         }
+    }
+
+    void SpawnKnight()
+    {
+        CreateUnit(knightPrefab, knightCost, ref knights, knightSpawn);
     }
 
     void DecideTarget()
@@ -77,7 +108,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             GameObject closestEnemy = null;
             for (int i = 0; i < enemyBases.Length; ++i)
             {
-				if(enemyBases[i] == null) {continue;}
+                if (enemyBases[i] == null) { continue; }
                 if (closestEnemy == null)
                 {
                     closestEnemy = enemyBases[i];
@@ -116,8 +147,29 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             IAI objAI = obj.GetComponent<IAI>();
             if (objAI != null)
             {
-                objAI.SetAI(AINum, colorMat);
+                objAI.SetAI(AINum, colorMat, this);
             }
+            return true;
+        }
+        return false;
+    }
+
+    bool CreateSerf()
+    {
+        if (resources >= serfCost)
+        {
+            GameObject obj = Instantiate(serfPrefab, serfSpawn.transform);
+            if (!FindEmptySlot(obj, ref serfs))
+            {
+                serfs.Add(obj);
+            }
+            resources -= serfCost;
+
+            obj.tag = tag;
+            GetResource objScript = obj.GetComponent<GetResource>();
+            objScript.node = nodes[0].transform;
+            objScript.dropOff = gameObject.transform;
+
             return true;
         }
         return false;
@@ -153,5 +205,58 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public void Insert(int num)
     {
         resources += num;
+    }
+
+    void OnTriggerStay(Collider other)
+    {
+        if (other.tag == tag)
+        {
+            IHealable otherHealth = other.GetComponent<IHealable>();
+            if (otherHealth != null)
+            {
+                otherHealth.Heal(healthPerSecond * Time.deltaTime);
+            }
+        }
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, detectionDistance);
+    }
+
+    void CheckForEnemy()
+    {
+        Collider[] hits =
+            Physics.OverlapSphere(transform.position, detectionDistance);
+
+        for (int i = 0; i < hits.Length; ++i)
+        {
+            if (hits[i].tag != tag)
+            {
+                IDamageable enemy = hits[i].GetComponent<IDamageable>();
+                if (enemy != null)
+                {
+                    //Debug.Log("Detected Enemy!");
+                    isEnemyAttacking = true;
+                    break;
+                }
+            }
+            isEnemyAttacking = false;
+        }
+
+        Invoke("CheckForEnemy", detectionDelay);
+    }
+
+    bool IsAnyEnemyLeft()
+    {
+        for (int i = 0; i < enemyBases.Length; ++i)
+        {
+            if(enemyBases[i] != null)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

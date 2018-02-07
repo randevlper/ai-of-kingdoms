@@ -310,18 +310,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHP: 100
   _HP: 0
-  attack: 25
+  attack: 15
   detectionDistance: 25
   detectionTime: 0.25
   meleeCooldown: 0.1
   meleeDistance: 2
   critChance: 0.15
-  critMultiplier: 5
+  critMultiplier: 1.5
   AINum: 1
   navAgent: {fileID: 195380952310314144}
   target: {fileID: 0}
   flagMaterial: {fileID: 2100000, guid: f0d0fcd144930354f841019f5e8e0c01, type: 2}
   flag: {fileID: 1589181863648828}
+  healPercent: 0.7
+  criticalPercent: 0.5
+  speed: 20
+  runningMultiplier: 1.5
 --- !u!136 &136156888142231908
 CapsuleCollider:
   m_ObjectHideFlags: 1

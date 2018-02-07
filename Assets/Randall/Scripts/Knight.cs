@@ -20,6 +20,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     public float critChance;
     public float critMultiplier;
 
+    public KingdomDirector kingdom;
     public int AINum;
     //public LayerMask detectionMask;
     public NavMeshAgent navAgent;
@@ -31,6 +32,14 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 
     public Material flagMaterial;
     public GameObject flag;
+
+    private bool isHealing;
+    public float healPercent;
+    private bool isRunning;
+    public float criticalPercent;
+
+    public float speed;
+    public float runningMultiplier;
 
     //Idle if destination = position
     //Detecting
@@ -52,6 +61,8 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         calls = new Stack<UnityAction>();
         calls.Push(Idle);
         calls.Push(Move);
+
+        isHealing = false;
     }
 
     // Update is called once per frame
@@ -60,6 +71,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         //action.Invoke();
         calls.Peek().Invoke();
         meleeTimer += Time.deltaTime;
+        if (kingdom.isEnemyAttacking) { Detect(true); }
     }
 
     void Idle()
@@ -71,6 +83,15 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     void Move()
     {
         navAgent.destination = destination;
+
+        if (isRunning || isHealing)
+        {
+            navAgent.speed = speed * runningMultiplier;
+        }
+        else
+        {
+            navAgent.speed = speed;
+        }
 
         if (transform.position == destination)
         {
@@ -104,6 +125,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         }
         else
         {
+            navAgent.speed = speed;
             navAgent.destination = target.transform.position;
             Melee();
             //Pursue and attack
@@ -133,30 +155,32 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 
     void Detect()
     {
+        CheckHealth();
         //Check if an enemy is visible and attack them
-        RaycastHit[] hits =
-            Physics.SphereCastAll(transform.position, detectionDistance, transform.forward, detectionDistance);
+        Collider[] hits =
+            Physics.OverlapSphere(transform.position, detectionDistance);
 
         for (int i = 0; i < hits.Length; ++i)
         {
             //Debug.Log(hits[i].collider.name);
-            IDamageable other = hits[i].collider.gameObject.GetComponent<IDamageable>();
-            if (hits[i].collider.gameObject.tag != tag && other != null)
+            IDamageable other = hits[i].gameObject.GetComponent<IDamageable>();
+            if (hits[i].gameObject.tag != tag && other != null)
             {
-                //Attack only closest
+
                 if (target != null)
                 {
-                    if (Vector3.Distance(hits[i].collider.transform.position, transform.position)
+                    //Attack only closest
+                    if (Vector3.Distance(hits[i].transform.position, transform.position)
                         < Vector3.Distance(target.transform.position, transform.position))
                     {
-                        target = hits[i].collider.gameObject;
+                        target = hits[i].gameObject;
                     }
                 }
                 else
                 {
-                    target = hits[i].collider.gameObject;
+                    target = hits[i].gameObject;
                     //SetState(Attack);
-                    if (calls.Peek() != Attack)
+                    if (calls.Peek() != Attack && (!isRunning || kingdom.isEnemyAttacking))
                     {
                         calls.Push(Attack);
                     }
@@ -169,30 +193,32 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 
     void Detect(bool isNotRecursive)
     {
+        CheckHealth();
         //Check if an enemy is visible and attack them
-        RaycastHit[] hits =
-            Physics.SphereCastAll(transform.position, detectionDistance, transform.forward);
+        Collider[] hits =
+            Physics.OverlapSphere(transform.position, detectionDistance);
 
         for (int i = 0; i < hits.Length; ++i)
         {
             //Debug.Log(hits[i].collider.name);
-            IDamageable other = hits[i].collider.gameObject.GetComponent<IDamageable>();
-            if (hits[i].collider.gameObject.tag != tag && other != null)
+            IDamageable other = hits[i].gameObject.GetComponent<IDamageable>();
+            if (hits[i].gameObject.tag != tag && other != null)
             {
-                //Attack only closest
+
                 if (target != null)
                 {
-                    if (Vector3.Distance(hits[i].collider.transform.position, transform.position)
+                    //Attack only closest
+                    if (Vector3.Distance(hits[i].transform.position, transform.position)
                         < Vector3.Distance(target.transform.position, transform.position))
                     {
-                        target = hits[i].collider.gameObject;
+                        target = hits[i].gameObject;
                     }
                 }
                 else
                 {
-                    target = hits[i].collider.gameObject;
+                    target = hits[i].gameObject;
                     //SetState(Attack);
-                    if (calls.Peek() != Attack)
+                    if (calls.Peek() != Attack && (!isRunning || kingdom.isEnemyAttacking))
                     {
                         calls.Push(Attack);
                     }
@@ -224,6 +250,19 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         }
     }
 
+    void CheckHealth()
+    {
+        if (_HP / maxHP < healPercent && !isHealing)
+        {
+            isHealing = true;
+        }
+        if (_HP / maxHP < criticalPercent && isHealing)
+        {
+            isRunning = true;
+        }
+
+    }
+
 
     //TODO: Set false and the Kingdom director can reset it
     void Death()
@@ -236,11 +275,18 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         _HP += health;
         if (_HP > maxHP)
         {
-            health = maxHP;
+            _HP = maxHP;
+            isHealing = false;
+            isRunning = false;
         }
     }
 
-    public void SetAI(int num, Material mat)
+    public bool GetIsHealing()
+    {
+        return isHealing;
+    }
+
+    public void SetAI(int num, Material mat, KingdomDirector k)
     {
         switch (num)
         {
@@ -261,6 +307,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         }
 
         flag.GetComponent<MeshRenderer>().material = mat;
+        kingdom = k;
     }
 
 }

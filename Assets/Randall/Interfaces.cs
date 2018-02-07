@@ -10,6 +10,7 @@ public interface IDamageable
 public interface IHealable
 {
     void Heal(float heal);
+    bool GetIsHealing();
 }
 
 public interface IStorage
@@ -19,5 +20,5 @@ public interface IStorage
 
 public interface IAI
 {
-    void SetAI(int num, Material mat);
+    void SetAI(int num, Material mat, KingdomDirector k);
 }
