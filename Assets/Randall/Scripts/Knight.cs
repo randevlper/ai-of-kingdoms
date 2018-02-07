@@ -52,7 +52,20 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     //Detecting
 
     //Attacking = goTo enemy
+    public enum States
+    {
+        IDLE, //Waiting for an order from the KingdomDirector
+        ATTACK, //Told to ATTACK a point from the KingdomDirector
+        DEFEND, //Told to DEFEND a point from the KingdomDirector
+        HEAL //Heal when not attacking a knight, goto AI owned node or base
+    }
 
+    Stack<States> _state;
+
+    public States currentState
+    {
+        get { return _state.Peek(); }
+    }
 
     // Use this for initialization
     void Start()
