@@ -5,6 +5,8 @@ using UnityEngine.AI;
 
 public class GetResource : MonoBehaviour,IDamageable
 {
+    public LayerMask mask;
+
     public Transform node;
     public Transform dropOff;
     NavMeshAgent agent;
@@ -15,6 +17,8 @@ public class GetResource : MonoBehaviour,IDamageable
     public int backpackCapacity;
     public float detectionDistance;
 
+    public float fleeSpeed;
+
     IStorage baseStorage;
 
     GameObject closestKnight = null;
@@ -24,9 +28,7 @@ public class GetResource : MonoBehaviour,IDamageable
     {
         health -= damage;
     }
-
-
-
+    
     Stack<States> state;
     enum States
     {
@@ -37,8 +39,9 @@ public class GetResource : MonoBehaviour,IDamageable
 
     void Detect()
     {
+        
         Collider[] hits =
-        Physics.OverlapSphere(transform.position, detectionDistance);
+        Physics.OverlapSphere(transform.position, detectionDistance, mask);
         for (int i = 0; i < hits.Length; ++i)
         {
 
@@ -49,6 +52,7 @@ public class GetResource : MonoBehaviour,IDamageable
                 hits[i].GetComponent<Collider>().gameObject.name.Split(' ')[0] == "Knight")
             {
                 state.Push(States.FLEE);
+                Debug.Log("Fleeing"); 
                 GameObject other = hits[i].gameObject;
                 //Tell worker to run away
                 if (closestKnight == null)
@@ -62,42 +66,29 @@ public class GetResource : MonoBehaviour,IDamageable
                 }
             }
         }
-    }
-
-
-
-    // Use this for initialization
-    void Start ()
-    {
-        agent = GetComponent<NavMeshAgent>();
-        baseStorage = dropOff.gameObject.GetComponent<IStorage>();
-
-        state = new Stack<States>();
-        state.Push(States.IDLE);
-        state.Push(States.GATHER);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        switch (state.Peek())
+        if (hits.Length == 0
+            &&
+            state.Peek() != States.GATHER)
         {
-            case States.IDLE:
-
-                break;
-            case States.GATHER:
-                break;
-            case States.FLEE:
-            default:
-                break;
+            Debug.Log("Gathering");
+            state.Push(States.GATHER);
         }
-              
-        
+    }
 
+    void flee()
+    //Vector3 dir = (myPos - otherGuy.pos).normalize
+    //destination = myPos + dir
+    {
+        Vector3 dir = (closestKnight.transform.position - agent.transform.position).normalized;
+        agent.destination = agent.transform.position - (dir * fleeSpeed);
+    }
+
+    void collectDeliver()
+    {
         if (toNode == true)
         {
             agent.destination = node.position;
-            if(pathComplete())
+            if (pathComplete())
             {
                 resources += (gatherSpeed * Time.deltaTime);
                 if (resources >= backpackCapacity)
@@ -111,11 +102,11 @@ public class GetResource : MonoBehaviour,IDamageable
             agent.destination = dropOff.position;
             if (pathComplete())
             {
-                if(baseStorage != null)
+                if (baseStorage != null)
                 {
                     baseStorage.Insert((gatherSpeed * Time.deltaTime));
                 }
-                
+
 
                 resources -= (gatherSpeed * Time.deltaTime);
                 if (resources <= 0)
@@ -124,13 +115,41 @@ public class GetResource : MonoBehaviour,IDamageable
                 }
             }
         }
+    }
+    
+    // Use this for initialization
+    void Start ()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        baseStorage = dropOff.gameObject.GetComponent<IStorage>();
+
+        state = new Stack<States>();
+        state.Push(States.GATHER);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        switch (state.Peek())
+        {
+            case States.GATHER:
+                collectDeliver();
+                break;
+            case States.FLEE:
+                flee();
+                break;
+            default:
+                break;
+        }
+                      
+        
 
         if (health <= 0)
         {
             Destroy(gameObject);
         }
+        Detect();
     }
-
 
     protected bool pathComplete()
     {
