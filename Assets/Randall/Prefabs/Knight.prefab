@@ -19,7 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4949149442336312}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: GFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36,7 +36,7 @@ GameObject:
   - component: {fileID: 4534454861609048}
   - component: {fileID: 33438377270139698}
   - component: {fileID: 23063364263831424}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53,7 +53,7 @@ GameObject:
   - component: {fileID: 4902095446790898}
   - component: {fileID: 33583152072615296}
   - component: {fileID: 23646111373752974}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: Flag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70,7 +70,7 @@ GameObject:
   - component: {fileID: 4756369241930526}
   - component: {fileID: 33706095660183426}
   - component: {fileID: 23666273376788246}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: Pole
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 114971024588677566}
   - component: {fileID: 54700760280143740}
   - component: {fileID: 136156888142231908}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: Knight
   m_TagString: AI1
   m_Icon: {fileID: 0}
@@ -322,7 +322,6 @@ MonoBehaviour:
   kingdom: {fileID: 0}
   AINum: 1
   navAgent: {fileID: 195380952310314144}
-  target: {fileID: 0}
   flagMaterial: {fileID: 2100000, guid: f0d0fcd144930354f841019f5e8e0c01, type: 2}
   flag: {fileID: 1589181863648828}
   healPercent: 0.5
