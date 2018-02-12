@@ -30,7 +30,8 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     //[SerializeField] private List<GameObject> nodes;
 
     [Header("Spawned Things")]
-    [SerializeField] public List<GameObject> knights;
+    [SerializeField]
+    public List<GameObject> knights;
     [SerializeField] private List<GameObject> serfs;
 
     public GameObject attackPos;
@@ -42,6 +43,12 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public float detectionDistance;
     public float detectionDelay;
     public bool isEnemyAttacking;
+
+    enum Personalities
+    {
+        DEFENSIVE,
+        AGGRESSIVE
+    }
 
     // Use this for initialization
     void Start()
@@ -73,23 +80,26 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     // Update is called once per frame
     void Update()
     {
+
+
+
         //TODO: Decide between serf or Knight to create
         //DecideTarget();
         for (int i = 0; i < knights.Count; i++)
         {
             //TODO: Don't get components every frame]
             Knight knight = knights[i].GetComponent<Knight>();
-            if(knight.currentState == Knight.States.IDLE)
+            if (knight.currentState == Knight.States.IDLE)
             {
                 GameObject baseToAttack = null;
                 for (int b = 0; b < manager.bases.Length; b++)
                 {
-                    if(manager.bases[b] != gameObject && manager.bases[b].activeInHierarchy)
+                    if (manager.bases[b] != gameObject && manager.bases[b].activeInHierarchy)
                     {
                         baseToAttack = manager.bases[b];
                     }
                 }
-                if( baseToAttack != null)
+                if (baseToAttack != null)
                 {
                     knight.SetAttackObjective(baseToAttack);
                 }
