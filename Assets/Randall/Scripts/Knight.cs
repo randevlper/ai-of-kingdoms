@@ -48,6 +48,8 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     private bool isRunning;
     public float criticalPercent;
 
+    public bool isDebug = false;
+
     public enum States
     {
         IDLE, //Waiting for an order from the KingdomDirector
@@ -194,8 +196,11 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 
     void OnDrawGizmos()
     {
-        Gizmos.color = flagMaterial.color;
-        Gizmos.DrawWireSphere(transform.position, detectionDistance);
+        if (isDebug)
+        {
+            Gizmos.color = flagMaterial.color;
+            Gizmos.DrawWireSphere(transform.position, detectionDistance);
+        }
     }
 
     //Vector3
@@ -287,7 +292,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         {
             if (objective.activeInHierarchy)
             {
-                Debug.Log("Attacking base" + objective.name);
+                //Debug.Log("Attacking base" + objective.name);
                 Detection();
                 navAgent.destination = objective.transform.position;
                 return;
@@ -325,7 +330,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 
     void Defend()
     {
-        Debug.Log("Defending");
+        //Debug.Log("Defending");
         Detection();
         navAgent.destination = objective.transform.position;
     }

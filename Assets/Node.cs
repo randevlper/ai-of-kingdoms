@@ -14,6 +14,8 @@ public class Node : MonoBehaviour
 
     public GameObject[] guards;
 
+    public bool isDebug;
+
     public enum States
     {
         NEUTRAL,
@@ -126,8 +128,11 @@ public class Node : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, detectionDistance);
+        if (isDebug)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, detectionDistance);
+        }
     }
 
     //If AI in sphere overlap start capture

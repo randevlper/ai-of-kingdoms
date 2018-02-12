@@ -44,6 +44,8 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public float detectionDelay;
     public bool isEnemyAttacking;
 
+    public bool isDebug = false;
+
     enum Personalities
     {
         DEFENSIVE,
@@ -96,14 +98,14 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             Knight knight = knights[i].GetComponent<Knight>();
             if (knight.currentState == Knight.States.IDLE)
             {
-                GameObject baseToAttack = null;
-                for (int b = 0; b < manager.bases.Length; b++)
-                {
-                    if (manager.bases[b] != gameObject && manager.bases[b].activeInHierarchy)
-                    {
-                        baseToAttack = manager.bases[b];
-                    }
-                }
+                GameObject baseToAttack = manager.GetRandomKingdom(this).gameObject;
+                // for (int b = 0; b < manager.bases.Length; b++)
+                // {
+                //     if (manager.bases[b] != gameObject && manager.bases[b].activeInHierarchy)
+                //     {
+                //         baseToAttack = manager.bases[b];
+                //     }
+                // }
                 if (baseToAttack != null)
                 {
                     knight.SetAttackObjective(baseToAttack);
@@ -166,9 +168,10 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             resources -= serfCost;
 
             obj.tag = tag;
-            obj.GetComponent<MeshRenderer>().material = colorMat;
+            obj.transform.Find("Cylinder").GetComponent<MeshRenderer>().material = colorMat;
+            obj.transform.position = serfSpawn.transform.position;
             GetResource objScript = obj.GetComponent<GetResource>();
-            objScript.node = manager.resourceNodes[0].transform;
+            objScript.node = manager.GetClosestNode(transform.position).transform;
             objScript.dropOff = gameObject.transform;
 
             return true;
@@ -223,8 +226,11 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, detectionDistance);
+        if (isDebug)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(transform.position, detectionDistance);
+        }
     }
 
     void CheckForEnemy()
