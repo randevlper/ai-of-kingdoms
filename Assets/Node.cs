@@ -32,6 +32,7 @@ public class Node : MonoBehaviour
     void Start()
     {
         _state = new Stack<States>();
+        _state.Push(States.NEUTRAL);
     }
 
     // Update is called once per frame
@@ -58,7 +59,7 @@ public class Node : MonoBehaviour
         GameObject closestEnemy = Detect();
         if (closestEnemy != null)
         {
-            //start capturing
+            _capturePoints += captureRate * Time.deltaTime;
         }
 
     }
@@ -79,6 +80,7 @@ public class Node : MonoBehaviour
         if (closestEnemy != null)
         {
             //Tell guards to attack
+            _capturePoints += captureRate * Time.deltaTime;
         }
 
     }
@@ -94,6 +96,7 @@ public class Node : MonoBehaviour
         {
             //Debug.Log(hits[i].collider.name);
             IDamageable other = hits[i].gameObject.GetComponent<IDamageable>();
+            //Will only return a gameObject with a diffrent tag
             if (hits[i].gameObject.tag != tag && other != null)
             {
 

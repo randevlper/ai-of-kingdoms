@@ -81,7 +81,12 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     void Update()
     {
 
+        if (serfs.Count < maxSerfs)
+        {
+            CreateSerf();
+        }
 
+        SpawnKnight();
 
         //TODO: Decide between serf or Knight to create
         //DecideTarget();
@@ -161,8 +166,9 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             resources -= serfCost;
 
             obj.tag = tag;
+            obj.GetComponent<MeshRenderer>().material = colorMat;
             GetResource objScript = obj.GetComponent<GetResource>();
-            // /objScript.node = nodes[0].transform;
+            objScript.node = manager.resourceNodes[0].transform;
             objScript.dropOff = gameObject.transform;
 
             return true;
