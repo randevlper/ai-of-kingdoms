@@ -79,8 +79,15 @@ public class GetResource : MonoBehaviour,IDamageable
     //Vector3 dir = (myPos - otherGuy.pos).normalize
     //destination = myPos + dir
     {
-        Vector3 dir = (closestKnight.transform.position - agent.transform.position).normalized;
-        agent.destination = agent.transform.position - (dir * fleeSpeed);
+        if (closestKnight != null)
+        {
+            Vector3 dir = (closestKnight.transform.position - agent.transform.position).normalized;
+            agent.destination = agent.transform.position - (dir * fleeSpeed);
+        }
+        else
+        {
+            state.Pop();
+        }
     }
 
     void collectDeliver()
