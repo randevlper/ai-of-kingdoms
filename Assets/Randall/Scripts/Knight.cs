@@ -17,6 +17,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     [Header("Combat")]
     public float detectionDistance;
     public float detectionTime;
+    private float detectionTimer;
     public float meleeCooldown;
     public float meleeDistance;
     private float meleeTimer;
@@ -29,107 +30,93 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     //public LayerMask detectionMask;
     public NavMeshAgent navAgent;
     [HideInInspector] private Vector3 destination;
-    public GameObject target;
-    UnityEvent action;
 
-    Stack<UnityAction> calls;
+    //specific thing the knight is attacking
+    private GameObject target;
+
+    //THe thing the knight is going to move towards
+    private GameObject objective;
 
     [Header("Color Settings")]
     public Material flagMaterial;
     public GameObject flag;
 
 
-    private bool isHealing;
+    private bool needsHealing;
     [Header("Retreat Settings")]
     public float healPercent;
     private bool isRunning;
     public float criticalPercent;
 
-    //Idle if destination = position
-    //Detecting
+    public enum States
+    {
+        IDLE, //Waiting for an order from the KingdomDirector
+        ATTACK, //Told to ATTACK a point from the KingdomDirector
+        ATTACK_THING, //Attack a specific Knight
+        DEFEND, //Told to DEFEND a point from the KingdomDirector
+        DEFEND_WORKER, //Later
+        RETREAT, //Run from everything to nearest AI owned node to heal, 
+                 //check what its fighting to see if it will die first
+        HEAL // Just use Retreat when no longer fighting
+    }
 
-    //Moving goto destination
-    //Detecting
+    Stack<States> _state;
 
-    //Attacking = goTo enemy
-
+    public States currentState
+    {
+        get { return _state.Peek(); }
+    }
 
     // Use this for initialization
     void Start()
     {
         _HP = maxHP;
-        action = new UnityEvent();
-        action.AddListener(Idle);
-        Invoke("Detect", 0);
-
-        calls = new Stack<UnityAction>();
-        calls.Push(Idle);
-        calls.Push(Move);
-
-        isHealing = false;
+        //Invoke("Detect", 0);        
+        needsHealing = false;
+        _state = new Stack<States>();
+        _state.Push(States.IDLE);
     }
 
     // Update is called once per frame
     void Update()
     {
         //action.Invoke();
-        calls.Peek().Invoke();
+
+        CheckHealth();
+        switch (currentState)
+        {
+            case States.IDLE:
+                //navAgent stand still
+                //Detect enemies around on a timer
+                Idle();
+                break;
+            case States.ATTACK:
+                Attack();
+                break;
+            case States.ATTACK_THING:
+                AttackThing();
+                //Needs a target to attack
+                break;
+            case States.DEFEND:
+                Defend();
+                break;
+            case States.RETREAT:
+                //Retreat();
+                break;
+            default:
+                break;
+        }
+
+        detectionTimer += Time.deltaTime;
         meleeTimer += Time.deltaTime;
-        if (kingdom.isEnemyAttacking) { Detect(true); }
+        //if (kingdom.isEnemyAttacking) { Detect(true); }
     }
 
     void Idle()
     {
         navAgent.destination = transform.position;
+        Detection();
         //Stand still and detect
-    }
-
-    void Move()
-    {
-        navAgent.destination = destination;
-
-        if (isRunning || isHealing)
-        {
-            navAgent.speed = speed * runningMultiplier;
-        }
-        else
-        {
-            navAgent.speed = speed;
-        }
-
-        if (transform.position == destination)
-        {
-            calls.Pop();
-        }
-    }
-
-    public void Move(Vector3 pos)
-    {
-        destination = pos;
-
-        if (calls == null) { return; }
-        if (!(calls.Peek() == Attack) && calls.Peek() != Move)
-        {
-            calls.Push(Move);
-        }
-    }
-
-    void Attack()
-    {
-        if (target == null)
-        {
-            //SetState(Idle);
-            calls.Pop();
-            Detect(true);
-            return;
-        }
-        else
-        {
-            navAgent.speed = speed;
-            navAgent.destination = target.transform.position;
-            Melee();
-            //Pursue and attack
-        }
     }
 
     void Melee()
@@ -153,9 +140,9 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         }
     }
 
-    void Detect()
+    GameObject Detect()
     {
-        CheckHealth();
+        GameObject knight = null;
         //Check if an enemy is visible and attack them
         Collider[] hits =
             Physics.OverlapSphere(transform.position, detectionDistance);
@@ -167,75 +154,47 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
             if (hits[i].gameObject.tag != tag && other != null)
             {
 
-                if (target != null)
+                if (knight != null)
                 {
                     //Attack only closest
                     if (Vector3.Distance(hits[i].transform.position, transform.position)
-                        < Vector3.Distance(target.transform.position, transform.position))
+                        < Vector3.Distance(knight.transform.position, transform.position))
                     {
-                        target = hits[i].gameObject;
+                        knight = hits[i].gameObject;
                     }
                 }
                 else
                 {
-                    target = hits[i].gameObject;
+                    knight = hits[i].gameObject;
                     //SetState(Attack);
-                    if (calls.Peek() != Attack && (!isRunning || kingdom.isEnemyAttacking))
-                    {
-                        calls.Push(Attack);
-                    }
+                    // if (calls.Peek() != Attack && (!isRunning || kingdom.isEnemyAttacking))
+                    // {
+                    //     calls.Push(Attack);
+                    // }
                 }
             }
         }
-
-        Invoke("Detect", detectionTime);
+        //Invoke("Detect", detectionTime);
+        return knight;
     }
 
-    void Detect(bool isNotRecursive)
+    void Detection()
     {
-        CheckHealth();
-        //Check if an enemy is visible and attack them
-        Collider[] hits =
-            Physics.OverlapSphere(transform.position, detectionDistance);
-
-        for (int i = 0; i < hits.Length; ++i)
+        GameObject other = Detect();
+        if (other != null &&
+            (currentState == States.ATTACK ||
+             currentState == States.DEFEND ||
+             currentState == States.IDLE))
         {
-            //Debug.Log(hits[i].collider.name);
-            IDamageable other = hits[i].gameObject.GetComponent<IDamageable>();
-            if (hits[i].gameObject.tag != tag && other != null)
-            {
-
-                if (target != null)
-                {
-                    //Attack only closest
-                    if (Vector3.Distance(hits[i].transform.position, transform.position)
-                        < Vector3.Distance(target.transform.position, transform.position))
-                    {
-                        target = hits[i].gameObject;
-                    }
-                }
-                else
-                {
-                    target = hits[i].gameObject;
-                    //SetState(Attack);
-                    if (calls.Peek() != Attack && (!isRunning || kingdom.isEnemyAttacking))
-                    {
-                        calls.Push(Attack);
-                    }
-                }
-            }
+            Debug.Log("Detected");
+            target = other;
+            _state.Push(States.ATTACK_THING);
         }
     }
-
-    // void SetState(UnityAction call)
-    // {
-    //     action.RemoveAllListeners();
-    //     action.AddListener(call);
-    // }
 
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
+        Gizmos.color = flagMaterial.color;
         Gizmos.DrawWireSphere(transform.position, detectionDistance);
     }
 
@@ -250,23 +209,27 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         }
     }
 
+
+    //Check health of self to decide wether to heal or not
     void CheckHealth()
     {
-        if (_HP / maxHP < healPercent && !isHealing)
+        if (_HP / maxHP < healPercent && !needsHealing)
         {
-            isHealing = true;
+            needsHealing = true;
         }
-        if (_HP / maxHP < criticalPercent && isHealing)
+        if (_HP / maxHP < criticalPercent && needsHealing)
         {
             isRunning = true;
+            _state.Push(States.RETREAT);
         }
-
     }
 
 
     //TODO: Set false and the Kingdom director can reset it
+    //TODO: isDead
     void Death()
     {
+        kingdom.knights.Remove(gameObject);
         Destroy(gameObject);
     }
 
@@ -276,14 +239,12 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         if (_HP > maxHP)
         {
             _HP = maxHP;
-            isHealing = false;
-            isRunning = false;
         }
     }
 
     public bool GetIsHealing()
     {
-        return isHealing;
+        return needsHealing;
     }
 
     public void SetAI(int num, Material mat, KingdomDirector k)
@@ -310,4 +271,153 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         kingdom = k;
     }
 
+
+    //Command sent to knight
+    //Kingdom or Node
+    public void SetAttackObjective(GameObject thing)
+    {
+        objective = thing;
+        _state.Push(States.ATTACK);
+    }
+
+    //Move to objective and scan for enemy
+    void Attack()
+    {
+        if (objective != null)
+        {
+            if (objective.activeInHierarchy)
+            {
+                Debug.Log("Attacking base" + objective.name);
+                Detection();
+                navAgent.destination = objective.transform.position;
+                return;
+            }
+        }
+        _state.Pop();
+
+        //When achomplished go IDLE, Check by tag?
+    }
+
+    void AttackThing()
+    {
+        //Go to thing and attack unless it does not exsist or isDead
+        //TODO: Is dead
+        target = Detect();
+        if (target != null)
+        {
+            if (target.activeInHierarchy)
+            {
+                navAgent.destination = target.transform.position;
+                Melee();
+                return;
+            }
+        }
+        _state.Pop();
+
+    }
+
+    //Patrol objective, wait for orders from node or defend automatically
+    public void SetDefenseObjective(GameObject thing)
+    {
+        objective = thing;
+        _state.Push(States.DEFEND);
+    }
+
+    void Defend()
+    {
+        Debug.Log("Defending");
+        Detection();
+        navAgent.destination = objective.transform.position;
+    }
+
 }
+
+// void Detect(bool isNotRecursive)
+// {
+//     CheckHealth();
+//     //Check if an enemy is visible and attack them
+//     Collider[] hits =
+//         Physics.OverlapSphere(transform.position, detectionDistance);
+
+//     for (int i = 0; i < hits.Length; ++i)
+//     {
+//         //Debug.Log(hits[i].collider.name);
+//         IDamageable other = hits[i].gameObject.GetComponent<IDamageable>();
+//         if (hits[i].gameObject.tag != tag && other != null)
+//         {
+
+//             if (target != null)
+//             {
+//                 //Attack only closest
+//                 if (Vector3.Distance(hits[i].transform.position, transform.position)
+//                     < Vector3.Distance(target.transform.position, transform.position))
+//                 {
+//                     target = hits[i].gameObject;
+//                 }
+//             }
+//             else
+//             {
+//                 target = hits[i].gameObject;
+//                 //SetState(Attack);
+//                 if (calls.Peek() != Attack && (!isRunning || kingdom.isEnemyAttacking))
+//                 {
+//                     calls.Push(Attack);
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// void SetState(UnityAction call)
+// {
+//     action.RemoveAllListeners();
+//     action.AddListener(call);
+// }
+
+// void Move()
+// {
+//     navAgent.destination = destination;
+
+//     if (isRunning || isHealing)
+//     {
+//         navAgent.speed = speed * runningMultiplier;
+//     }
+//     else
+//     {
+//         navAgent.speed = speed;
+//     }
+
+//     if (transform.position == destination)
+//     {
+//         calls.Pop();
+//     }
+// }
+
+// public void Move(Vector3 pos)
+// {
+//     destination = pos;
+
+//     if (calls == null) { return; }
+//     if (!(calls.Peek() == Attack) && calls.Peek() != Move)
+//     {
+//         calls.Push(Move);
+//     }
+// }
+
+// void Attack()
+// {
+//     if (target == null)
+//     {
+//         //SetState(Idle);
+//         calls.Pop();
+//         Detect(true);
+//         return;
+//     }
+//     else
+//     {
+//         navAgent.speed = speed;
+//         navAgent.destination = target.transform.position;
+//         Melee();
+//         //Pursue and attack
+//     }
+// }
