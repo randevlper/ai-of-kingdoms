@@ -5,10 +5,13 @@ using UnityEngine;
 public class RemoveOnParticleEnd : MonoBehaviour
 {
     public ParticleSystem ps;
+    public AudioSource aS;
 	// Use this for initialization
 	void Start ()
     {
         ps = GetComponentInChildren<ParticleSystem>();
+        aS = GetComponentInChildren<AudioSource>();
+
         ps.loop = false;
 
 
@@ -27,5 +30,8 @@ public class RemoveOnParticleEnd : MonoBehaviour
     public void Setup()
     {
         ps.Play();
+        ps.loop = false;
+        aS.Play();
+        aS.loop = false;
     }
 }

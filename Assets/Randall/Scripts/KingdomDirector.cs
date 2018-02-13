@@ -41,7 +41,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     [Header("Heal Settings")]
     public float healthPerSecond;
     public List<GameObject> guards;
-    public int guardsNum;
+    public float guardsPercent;
     public GameObject deathEffect;
 
     [Header("Enemy Detection Settings")]
@@ -55,6 +55,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     public GameObject GFX;
     public bool isWinner;
+    List<GameObject> sortedNodes;
 
     enum Personalities
     {
@@ -92,6 +93,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
         GetComponentInChildren<MeshRenderer>().material = manager.GetAIMaterial(tag);
         allBuffs = new List<Buffs>();
         allBuffs.Add(new Buffs(1f));
+        sortedNodes = manager.GetSortedNodes(transform.position);
     }
 
     void IncreaseResources()
@@ -116,6 +118,18 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
         return retval;
     }
 
+    GameObject RandomNode(int range)
+    {
+        List<GameObject> nodes = new List<GameObject>();
+        for (int i = 0; i < sortedNodes.Count && nodes.Count <= range; i++)
+        {
+            if (sortedNodes[i].tag != tag)
+            {
+                nodes.Add(sortedNodes[i]);
+            }
+        }
+        return nodes[Random.Range(0, range)];
+    }
 
     // Update is called once per frame
     void Update()
@@ -147,7 +161,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             Knight knight = knights[i].GetComponent<Knight>();
             if (knight.currentState == Knight.States.IDLE)
             {
-                if (guards.Count < guardsNum)
+                if ((float)guards.Count < (guardsPercent * (float)knights.Count))
                 {
                     FindEmptySlot(null, ref guards);
                     guards.Add(knight.gameObject);
@@ -159,7 +173,8 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
                     if (!manager.IsWinner(gameObject))
                     {
                         //baseToAttack = manager.GetRandomKingdom(this).gameObject;
-                        baseToAttack = manager.GetClosestNotAlignedNode(transform.position, tag).gameObject;
+                        baseToAttack = RandomNode(3);
+                        //manager.GetClosestNotAlignedNode(transform.position, tag).gameObject;
                     }
 
                     // for (int b = 0; b < manager.bases.Length; b++)
@@ -177,7 +192,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
                     {
                         Debug.Log("DEFEND ME");
                         knight.SetDefenseObjective(gameObject);
-                        if(!isWinner)
+                        if (!isWinner)
                         {
                             isWinner = true;
                             Invoke("WINNING", 0.05f);
@@ -202,11 +217,11 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     }
 
     void RandomExplosion()
-    {   
-        Vector3 position = transform.position + new Vector3(Random.Range(0,50), Random.Range(0,50), Random.Range(0,50));
+    {
+        Vector3 position = transform.position + new Vector3(Random.Range(-50, 50), Random.Range(0, 50), Random.Range(-50, 50));
         GameObject obj = manager.GetLargeExplosion();
         obj.transform.position = position;
-        obj.transform.eulerAngles = new Vector3(Random.Range(0,180), Random.Range(0,180), Random.Range(0,180));
+        obj.transform.eulerAngles = new Vector3(Random.Range(0, 180), Random.Range(0, 180), Random.Range(0, 180));
     }
 
 

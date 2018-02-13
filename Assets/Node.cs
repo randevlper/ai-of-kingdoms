@@ -84,6 +84,11 @@ public class Node : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
+            if (hits[i].tag != _capturingTag)
+            {
+                _capturingTag = hits[i].tag;
+                _capturePoints = 0;
+            }
             if (_capturingTag == null)
             {
                 _capturingTag = hits[i].tag;
@@ -92,7 +97,7 @@ public class Node : MonoBehaviour
             if (hits[i].tag == _capturingTag)
             {
                 numCapturing++;
-                
+
             }
         }
 
@@ -111,15 +116,15 @@ public class Node : MonoBehaviour
     //     Collider[] hits =
     //         Physics.OverlapSphere(transform.position, detectionDistance, workerMask);
     //     currentWorkers = hits.Length;
-        
+
     // }
-    
+
     //Send message on capture to guards of old kingdom that they are now IDLE
     //Clear guards array
     //Send message to kingdom that their node is caputred
     void Capture()
     {
-        
+
         GameObject explosion = manager.GetLargeExplosion();
         explosion.transform.position = transform.position;
 
@@ -127,12 +132,12 @@ public class Node : MonoBehaviour
         meshRenderer.material = manager.GetAIMaterial(tag);
 
         Buffs newBuff = new Buffs(0f);
-        newBuff.knightAttackMult = Random.Range(0f,1f);
-        newBuff.knightHealthMult = Random.Range(0f,1f);
+        newBuff.knightAttackMult = Random.Range(0f, 1f);
+        newBuff.knightHealthMult = Random.Range(0f, 1f);
         //newBuff.knightAutoHealMult = Random.Range(0f,1f);
-        newBuff.serfHealthMult = Random.Range(0f,1f);
-        newBuff.serfGatherSpeedMult = Random.Range(0f,0.1f);
-        newBuff.serfSpeedMult = Random.Range(0f,1f); 
+        newBuff.serfHealthMult = Random.Range(0f, 1f);
+        newBuff.serfGatherSpeedMult = Random.Range(0f, 0.1f);
+        newBuff.serfSpeedMult = Random.Range(0f, 1f);
 
 
         manager.GetKingdomByTag(tag).allBuffs.Add(newBuff);

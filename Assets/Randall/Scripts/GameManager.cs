@@ -143,6 +143,60 @@ public class GameManager : MonoBehaviour
         return retval.GetComponent<Node>();
     }
 
+    struct DistanceGameobject
+    {
+        public float distance;
+        public GameObject gameObject;
+
+        public DistanceGameobject(GameObject obj, Vector3 position)
+        {
+            gameObject = obj;
+            distance = Vector3.Distance(gameObject.transform.position, position);
+        }
+    }
+
+    public List<GameObject> GetSortedNodes(Vector3 position)
+    {
+        List<DistanceGameobject> nodes = new List<DistanceGameobject>();
+        for (int i = 0; i < resourceNodes.Length; i++)
+        {
+            nodes.Add(new DistanceGameobject(resourceNodes[i], position));
+        }
+
+        while (CheckIfSorted(nodes))
+        {
+            for (int i = 0; i < nodes.Count - 1; i++)
+            {
+                if (nodes[i].distance > nodes[i + 1].distance)
+                {
+                    DistanceGameobject temp = nodes[i];
+                    nodes[i] = nodes[i + 1];
+                    nodes[i + 1] = temp;
+                }
+            }
+        }
+
+        List<GameObject> sortedNodes = new List<GameObject>();
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            sortedNodes.Add(nodes[i].gameObject);
+        }
+
+        return sortedNodes;
+    }
+
+    bool CheckIfSorted(List<DistanceGameobject> list)
+    {
+        for (int i = 0; i < list.Count - 1; i++)
+        {
+            if (!(list[i].distance < list[i + 1].distance))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public KingdomDirector GetRandomKingdom(KingdomDirector kingdom)
     {
         List<GameObject> otherBases = new List<GameObject>();
@@ -216,6 +270,8 @@ public class GameManager : MonoBehaviour
     public GameObject largeExplosionPrefab;
     public List<GameObject> largeExplosions = new List<GameObject>();
     public int maxLargeExplosions = 100;
+    public List<AudioClip> largeExplosionSounds;
+
     public GameObject GetLargeExplosion()
     {
         Debug.Log("Getting Large Explosion");
@@ -245,6 +301,7 @@ public class GameManager : MonoBehaviour
     public GameObject medExplosionPrefab;
     public List<GameObject> medExplosions = new List<GameObject>();
     public int maxMedExplosions = 200;
+    public List<AudioClip> medExplosionSounds;
     public GameObject GetMedExplosion()
     {
         for (int i = 0; i < medExplosions.Count; i++)
@@ -254,6 +311,7 @@ public class GameManager : MonoBehaviour
                 //return gameObject
                 GameObject obj = medExplosions[i];
                 obj.SetActive(true);
+                obj.GetComponent<AudioSource>().clip = medExplosionSounds[Random.Range(0,medExplosionSounds.Count-1)];
                 obj.GetComponent<RemoveOnParticleEnd>().Setup();
                 return obj;
             }
