@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4478298409243990}
   - component: {fileID: 114141387931673088}
-  m_Layer: 0
+  m_Layer: 31
   m_Name: Node
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38,7 +38,7 @@ GameObject:
   - component: {fileID: 33785505561476950}
   - component: {fileID: 23471232145094222}
   - component: {fileID: 64363773746302224}
-  m_Layer: 0
+  m_Layer: 31
   m_Name: Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53,7 +53,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4439589202871372}
-  m_Layer: 0
+  m_Layer: 31
   m_Name: GFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -168,9 +168,17 @@ MonoBehaviour:
   mask:
     serializedVersion: 2
     m_Bits: 131072
-  detectionDistance: 10
+  workerMask:
+    serializedVersion: 2
+    m_Bits: 262144
+  detectionDistance: 5
+  deathEffect: {fileID: 1345913960319698, guid: cef8e4fd9c7a221458036a33802cd9c0,
+    type: 2}
   captureRate: 0
   pointsToCapture: 0
   guards: []
-  isDebug: 0
+  isDebug: 1
   meshRenderer: {fileID: 23471232145094222}
+  maxGatherers: 5
+  currentWorkers: 0
+  manager: {fileID: 0}

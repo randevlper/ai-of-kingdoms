@@ -5,7 +5,9 @@ using UnityEngine;
 public class Node : MonoBehaviour
 {
     public LayerMask mask;
+    public LayerMask workerMask;
     public float detectionDistance;
+    public GameObject deathEffect;
 
     //These are only guards of the same kingdom
     public float captureRate;
@@ -21,7 +23,10 @@ public class Node : MonoBehaviour
     public bool isDebug;
 
     public MeshRenderer meshRenderer;
+    public int maxGatherers = 5;
+    public int currentWorkers;
 
+    public GameManager manager;
     public enum States
     {
         NEUTRAL,
@@ -39,6 +44,7 @@ public class Node : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        //manager = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
         _state = new Stack<States>();
         _state.Push(States.NEUTRAL);
     }
@@ -50,6 +56,7 @@ public class Node : MonoBehaviour
         {
             case States.NEUTRAL:
                 Neutral();
+                //CheckNumWorkers();
                 break;
             case States.DEFENDING:
                 //Defending();
@@ -72,6 +79,7 @@ public class Node : MonoBehaviour
         {
             _capturingTag = null;
             _capturePoints = 0;
+            _isBeingCaptured = true;
         }
 
         for (int i = 0; i < hits.Length; i++)
@@ -89,6 +97,7 @@ public class Node : MonoBehaviour
             if (hits[i].tag == _capturingTag)
             {
                 numCapturing++;
+                
             }
         }
 
@@ -102,13 +111,34 @@ public class Node : MonoBehaviour
         }
     }
 
+    // void CheckNumWorkers()
+    // {
+    //     Collider[] hits =
+    //         Physics.OverlapSphere(transform.position, detectionDistance, workerMask);
+    //     currentWorkers = hits.Length;
+        
+    // }
+    
     //Send message on capture to guards of old kingdom that they are now IDLE
     //Clear guards array
     //Send message to kingdom that their node is caputred
     void Capture()
     {
+        
+        Instantiate(deathEffect, transform.position, Quaternion.identity);
         tag = _capturingTag;
-        meshRenderer.material = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().GetAIMaterial(tag);
+        meshRenderer.material = manager.GetAIMaterial(tag);
+
+        Buffs newBuff = new Buffs(0f);
+        newBuff.knightAttackMult = Random.Range(0f,1f);
+        newBuff.knightHealthMult = Random.Range(0f,1f);
+        //newBuff.knightAutoHealMult = Random.Range(0f,1f);
+        newBuff.serfHealthMult = Random.Range(0f,1f);
+        newBuff.serfGatherSpeedMult = Random.Range(0f,0.1f);
+        newBuff.serfSpeedMult = Random.Range(0f,1f); 
+
+
+        manager.GetKingdomByTag(tag).allBuffs.Add(newBuff);
     }
 
     GameObject Detect()

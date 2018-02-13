@@ -9,7 +9,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     [Header("Stats")]
     public float maxHP;
 
-    [SerializeField] private float _HP;
+    [SerializeField] public float _HP;
     public float attack;
     public float speed;
     public float runningMultiplier;
@@ -24,12 +24,15 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     public float critChance;
     public float critMultiplier;
 
+    public GameObject deathEffect;
 
     public KingdomDirector kingdom;
     public int AINum;
     //public LayerMask detectionMask;
     public NavMeshAgent navAgent;
     [HideInInspector] private Vector3 destination;
+
+    public LayerMask detectMask;
 
     //specific thing the knight is attacking
     private GameObject target;
@@ -173,7 +176,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         GameObject knight = null;
         //Check if an enemy is visible and attack them
         Collider[] hits =
-            Physics.OverlapSphere(transform.position, detectionDistance);
+            Physics.OverlapSphere(transform.position, detectionDistance, detectMask);
 
         for (int i = 0; i < hits.Length; ++i)
         {
@@ -208,6 +211,11 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 
     void Detection()
     {
+        if (detectionTimer > detectionTime)
+        {
+            detectionTimer = 0;
+            return;
+        }
         GameObject other = Detect();
         if (other != null &&
             (currentState == States.ATTACK ||
@@ -272,6 +280,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     void Death()
     {
         kingdom.knights.Remove(gameObject);
+        Instantiate(deathEffect, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
 

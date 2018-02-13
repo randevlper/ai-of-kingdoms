@@ -16,6 +16,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public GameObject knightPrefab;
     //public int knightCost;
     public GameObject knightSpawn;
+    public int maxKnights;
 
     public GameObject serfPrefab;
     //public int serfCost;
@@ -41,6 +42,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public float healthPerSecond;
     public List<GameObject> guards;
     public int guardsNum;
+    public GameObject deathEffect;
 
     [Header("Enemy Detection Settings")]
     public float detectionDistance;
@@ -48,6 +50,10 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public bool isEnemyAttacking;
 
     public bool isDebug = false;
+
+    public List<Buffs> allBuffs;
+
+    public GameObject GFX;
 
     enum Personalities
     {
@@ -82,7 +88,27 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
         Invoke("SpawnKnight", 1f);
         resources = manager.startingResources;
         GetComponentInChildren<MeshRenderer>().material = manager.GetAIMaterial(tag);
+        allBuffs = new List<Buffs>();
+        allBuffs.Add(new Buffs(1f));
     }
+
+    Buffs combineBuffs()
+    {
+        Buffs retval = new Buffs(0f);
+        for (int i = 0; i < allBuffs.Count; i++)
+        {
+            retval.knightAttackMult += allBuffs[i].knightAttackMult;
+            retval.knightAutoHealMult += allBuffs[i].knightAutoHealMult;
+            retval.knightHealthMult += allBuffs[i].knightHealthMult;
+
+            retval.serfGatherSpeedMult += allBuffs[i].serfGatherSpeedMult;
+            retval.serdAutoHealMult += allBuffs[i].serdAutoHealMult;
+            retval.serfSpeedMult += allBuffs[i].serfSpeedMult;
+            retval.serfHealthMult += allBuffs[i].serfHealthMult;
+        }
+        return retval;
+    }
+
 
     // Update is called once per frame
     void Update()
@@ -91,10 +117,17 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
         FindEmptySlot(null, ref serfs);
         FindEmptySlot(null, ref knights);
         FindEmptySlot(null, ref guards);
-        
+
         if (((float)serfs.Count < (float)knights.Count / serfsToKnights) && serfs.Count < maxSerfs)
         {
-            CreateSerf();
+            GameObject objSerf = CreateSerf();
+            if (objSerf != null)
+            {
+                GetResource serf = GetComponentInChildren<GetResource>();
+                Buffs serfBuffs = combineBuffs();
+                serf.health *= serfBuffs.serfHealthMult;
+                serf.gatherSpeed *= serfBuffs.serfGatherSpeedMult;
+            }
         }
 
         SpawnKnight();
@@ -145,7 +178,17 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     void SpawnKnight()
     {
-        CreateUnit(knightPrefab, manager.knightCost, ref knights, knightSpawn);
+        GameObject obj = CreateUnit(knightPrefab, manager.knightCost, ref knights, knightSpawn);
+        if (obj != null)
+        {
+            Buffs knightBuffs = combineBuffs();
+            Knight knight = obj.GetComponent<Knight>();
+            knight.maxHP *= knightBuffs.knightHealthMult;
+            knight.attack *= knightBuffs.knightAttackMult;
+
+            knight._HP = maxHP;
+        }
+
     }
 
     void DecideTarget()
@@ -158,7 +201,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
         Invoke("AddResource", 1f);
     }
 
-    bool CreateUnit(GameObject prefab, int cost, ref List<GameObject> store, GameObject spawn)
+    GameObject CreateUnit(GameObject prefab, int cost, ref List<GameObject> store, GameObject spawn)
     {
         if (resources >= cost)
         {
@@ -175,12 +218,12 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             {
                 objAI.SetAI(AINum, manager.GetAIMaterial(tag), this);
             }
-            return true;
+            return obj;
         }
-        return false;
+        return null;
     }
 
-    bool CreateSerf()
+    GameObject CreateSerf()
     {
         if (resources >= manager.serfCost)
         {
@@ -198,9 +241,9 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             objScript.node = manager.GetClosestNode(transform.position).transform;
             objScript.dropOff = gameObject.transform;
 
-            return true;
+            return obj;
         }
-        return false;
+        return null;
     }
 
     bool FindEmptySlot(GameObject obj, ref List<GameObject> store)
@@ -227,6 +270,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     void Death()
     {
+        Instantiate(deathEffect, transform.position, Quaternion.identity);
         gameObject.SetActive(false);
         //Destroy(gameObject);
     }

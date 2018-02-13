@@ -24,7 +24,6 @@ GameObject:
   - component: {fileID: 33507245520057674}
   - component: {fileID: 136588502257129182}
   - component: {fileID: 23687317733631458}
-  - component: {fileID: 54353980920369826}
   - component: {fileID: 208650270688568172}
   m_Layer: 18
   m_Name: Worker
@@ -505,21 +504,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1133408819377112}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
---- !u!54 &54353980920369826
-Rigidbody:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1030490685686898}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 1
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!114 &114951149823815604
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -585,7 +569,7 @@ NavMeshObstacle:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1030490685686898}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Shape: 1
   m_Extents: {x: 0.5, y: 1, z: 0.5}

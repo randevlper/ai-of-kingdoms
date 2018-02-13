@@ -12,6 +12,11 @@ public class GameManager : MonoBehaviour
     public int knightCost;
     public int startingResources;
 
+    void Start()
+    {
+        QualitySettings.vSyncCount = 0;
+    }
+
     bool IsAnyEnemyLeft()
     {
         for (int i = 0; i < bases.Length; ++i)
@@ -43,25 +48,96 @@ public class GameManager : MonoBehaviour
         return retval.GetComponent<Node>();
     }
 
-    public Node GetClosestNotAlignedNode(Vector3 position, string tag)
+    public Node GetClosestAlignedNode(Vector3 position, string t)
     {
         GameObject retval = null;
         for (int i = 0; i < resourceNodes.Length; i++)
         {
-            if (retval == null && resourceNodes[i].tag != tag)
+            if (retval == null && resourceNodes[i].tag == t)
             {
                 retval = resourceNodes[i];
             }
-            else if (Vector3.Distance(resourceNodes[i].transform.position, position)
-                < Vector3.Distance(retval.transform.position, position))
+            else if (retval == null && resourceNodes[i].tag != t)
             {
-                if (resourceNodes[i].tag != tag)
-                {
-                    retval = resourceNodes[i];
-                }
+                continue;
+            }
+
+            if (Vector3.Distance(resourceNodes[i].transform.position, position)
+                < Vector3.Distance(retval.transform.position, position)
+                && resourceNodes[i].tag != t)
+            {
+
+                retval = resourceNodes[i];
             }
         }
 
+        if (retval == null)
+        {
+            return null;
+        }
+        else
+        {
+            return retval.GetComponent<Node>();
+        }
+    }
+
+    public Node GetClosestAlignedNodeWorker(Vector3 position, string t)
+    {
+        GameObject retval = null;
+        for (int i = 0; i < resourceNodes.Length; i++)
+        {
+            Node nod = resourceNodes[i].GetComponent<Node>();
+            if (retval == null && resourceNodes[i].tag == t && nod.currentWorkers < nod.maxGatherers)
+            {
+                retval = resourceNodes[i];
+            }
+            else if (retval == null && resourceNodes[i].tag != t)
+            {
+                continue;
+            }
+
+            if (Vector3.Distance(resourceNodes[i].transform.position, position)
+                < Vector3.Distance(retval.transform.position, position)
+                && resourceNodes[i].tag != t
+                && nod.currentWorkers <= nod.maxGatherers)
+            {
+
+                retval = resourceNodes[i];
+            }
+        }
+
+        if (retval == null)
+        {
+            return null;
+        }
+        else
+        {
+            return retval.GetComponent<Node>();
+        }
+    }
+
+    public Node GetClosestNotAlignedNode(Vector3 position, string t)
+    {
+        GameObject retval = null;
+        for (int i = 0; i < resourceNodes.Length; i++)
+        {
+            if (retval == null && resourceNodes[i].tag != t)
+            {
+                retval = resourceNodes[i];
+            }
+            else if (retval == null && resourceNodes[i].tag == t)
+            {
+                continue;
+            }
+
+            if (Vector3.Distance(resourceNodes[i].transform.position, position)
+                < Vector3.Distance(retval.transform.position, position)
+                && resourceNodes[i].tag != t)
+            {
+
+                retval = resourceNodes[i];
+            }
+        }
         return retval.GetComponent<Node>();
     }
 
@@ -83,6 +159,19 @@ public class GameManager : MonoBehaviour
         }
         return retval;
 
+    }
+
+    public KingdomDirector GetKingdomByTag(string t)
+    {
+        for (int i = 0; i < bases.Length; i++)
+        {
+            if (bases[i].tag == t)
+            {
+                return bases[i].GetComponent<KingdomDirector>();
+            }
+        }
+
+        return null;
     }
 
     public bool IsWinner(GameObject obj)
