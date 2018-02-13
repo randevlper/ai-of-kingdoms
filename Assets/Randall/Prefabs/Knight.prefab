@@ -312,7 +312,7 @@ MonoBehaviour:
   _HP: 0
   attack: 15
   speed: 20
-  runningMultiplier: 1.5
+  runningMultiplier: 2
   detectionDistance: 25
   detectionTime: 0.25
   meleeCooldown: 0.05
@@ -326,6 +326,7 @@ MonoBehaviour:
   flag: {fileID: 1589181863648828}
   healPercent: 0.5
   criticalPercent: 0.25
+  isDebug: 0
 --- !u!136 &136156888142231908
 CapsuleCollider:
   m_ObjectHideFlags: 1
@@ -349,7 +350,7 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 20
-  m_Acceleration: 30
+  m_Acceleration: 60
   avoidancePriority: 50
   m_AngularSpeed: 120
   m_StoppingDistance: 0

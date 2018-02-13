@@ -4,17 +4,23 @@ using UnityEngine;
 
 public class Node : MonoBehaviour
 {
+    public LayerMask mask;
     public float detectionDistance;
 
     //These are only guards of the same kingdom
     public float captureRate;
     private float _capturePoints;
+    private string _capturingTag;
+    private bool _isBeingCaptured;
+    private int _numberKnightsCapping;
 
     public float pointsToCapture;
 
     public GameObject[] guards;
 
     public bool isDebug;
+
+    public MeshRenderer meshRenderer;
 
     public enum States
     {
@@ -46,10 +52,10 @@ public class Node : MonoBehaviour
                 Neutral();
                 break;
             case States.DEFENDING:
-                Defending();
+                //Defending();
                 break;
             case States.CAPTURED:
-                Captured();
+                //Captured();
                 break;
             default:
                 break;
@@ -58,33 +64,51 @@ public class Node : MonoBehaviour
 
     void Neutral()
     {
-        GameObject closestEnemy = Detect();
-        if (closestEnemy != null)
+        Collider[] hits =
+            Physics.OverlapSphere(transform.position, detectionDistance, mask);
+        int numCapturing = 0;
+
+        if (hits.Length == 0)
         {
-            _capturePoints += captureRate * Time.deltaTime;
+            _capturingTag = null;
+            _capturePoints = 0;
         }
 
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (_capturingTag == null)
+            {
+                _capturingTag = hits[i].tag;
+                _isBeingCaptured = true;
+            }
+            else if (hits[i].tag != _capturingTag)
+            {
+                _isBeingCaptured = false;
+                //Pause capture
+            }
+            if (hits[i].tag == _capturingTag)
+            {
+                numCapturing++;
+            }
+        }
+
+        if (_isBeingCaptured && _capturingTag != tag)
+        {
+            _capturePoints += Time.deltaTime * captureRate * numCapturing;
+            if (_capturePoints >= pointsToCapture)
+            {
+                Capture();
+            }
+        }
     }
 
-    void Defending()
+    //Send message on capture to guards of old kingdom that they are now IDLE
+    //Clear guards array
+    //Send message to kingdom that their node is caputred
+    void Capture()
     {
-        GameObject closestEnemy = Detect();
-        if (closestEnemy != null)
-        {
-            //Tell guards to attack
-        }
-
-    }
-
-    void Captured()
-    {
-        GameObject closestEnemy = Detect();
-        if (closestEnemy != null)
-        {
-            //Tell guards to attack
-            _capturePoints += captureRate * Time.deltaTime;
-        }
-
+        tag = _capturingTag;
+        meshRenderer.material = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().GetAIMaterial(tag);
     }
 
     GameObject Detect()
@@ -139,14 +163,6 @@ public class Node : MonoBehaviour
     //If two or more pause capture
     //Once captured heal AI
     void CheckCaptureStatus()
-    {
-
-    }
-
-    //Send message on capture to guards of old kingdom that they are now IDLE
-    //Clear guards array
-    //Send message to kingdom that their node is caputred
-    void Capture()
     {
 
     }

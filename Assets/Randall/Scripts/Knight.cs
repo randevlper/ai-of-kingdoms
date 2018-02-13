@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Events;
+//using UnityEngine.Events;
 
 public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 {
@@ -59,6 +59,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         DEFEND_WORKER, //Later
         RETREAT, //Run from everything to nearest AI owned node to heal, 
                  //check what its fighting to see if it will die first
+        NULL,
         HEAL // Just use Retreat when no longer fighting
     }
 
@@ -66,8 +67,24 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 
     public States currentState
     {
-        get { return _state.Peek(); }
+        get
+        {
+            if (_state == null) { return States.NULL; }
+            return _state.Peek();
+        }
     }
+
+    [SerializeField] private States state;
+
+    [Header("Random Settings")]
+    public float minAttack;
+    public float maxAttack;
+
+    public float minSpeed;
+    public float maxSpeed;
+
+    public float minHealth;
+    public float maxHealth;
 
     // Use this for initialization
     void Start()
@@ -83,6 +100,15 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     void Update()
     {
         //action.Invoke();
+        state = currentState;
+        if (currentState == States.DEFEND || currentState == States.RETREAT)
+        {
+            navAgent.speed = speed * runningMultiplier;
+        }
+        else
+        {
+            navAgent.speed = speed;
+        }
 
         CheckHealth();
         switch (currentState)
@@ -103,7 +129,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
                 Defend();
                 break;
             case States.RETREAT:
-                //Retreat();
+                Retreat();
                 break;
             default:
                 break;
@@ -188,7 +214,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
              currentState == States.DEFEND ||
              currentState == States.IDLE))
         {
-            Debug.Log("Detected");
+            //Debug.Log("Detected");
             target = other;
             _state.Push(States.ATTACK_THING);
         }
@@ -222,10 +248,21 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         {
             needsHealing = true;
         }
+        else
+        {
+            needsHealing = false;
+        }
         if (_HP / maxHP < criticalPercent && needsHealing)
         {
             isRunning = true;
-            _state.Push(States.RETREAT);
+            if (currentState != States.RETREAT)
+            {
+                _state.Push(States.RETREAT);
+            }
+        }
+        else
+        {
+            isRunning = false;
         }
     }
 
@@ -288,9 +325,10 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     //Move to objective and scan for enemy
     void Attack()
     {
+        //Node objScript = objective.GetComponent<Node>();
         if (objective != null)
         {
-            if (objective.activeInHierarchy)
+            if (objective.activeInHierarchy && objective.tag != tag)
             {
                 //Debug.Log("Attacking base" + objective.name);
                 Detection();
@@ -306,6 +344,12 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     void AttackThing()
     {
         //Go to thing and attack unless it does not exsist or isDead
+        if (needsHealing)
+        {
+            _state.Pop();
+            _state.Push(States.RETREAT);
+            return;
+        }
         //TODO: Is dead
         target = Detect();
         if (target != null)
@@ -324,15 +368,36 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     //Patrol objective, wait for orders from node or defend automatically
     public void SetDefenseObjective(GameObject thing)
     {
-        objective = thing;
         _state.Push(States.DEFEND);
+        objective = thing;
     }
 
     void Defend()
     {
         //Debug.Log("Defending");
-        Detection();
-        navAgent.destination = objective.transform.position;
+
+        if (objective.tag == tag)
+        {
+            Detection();
+            navAgent.destination = objective.transform.position;
+        }
+        else
+        {
+            _state.Pop();
+        }
+    }
+
+    void Retreat()
+    {
+        if (_HP == maxHP)
+        {
+            _state.Pop();
+        }
+        if (!isRunning)
+        {
+            Detection();
+        }
+        navAgent.destination = kingdom.transform.position;
     }
 
 }

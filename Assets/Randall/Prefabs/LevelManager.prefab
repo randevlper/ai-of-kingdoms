@@ -9,30 +9,30 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1388373813515260}
+  m_RootGameObject: {fileID: 1995261480993362}
   m_IsPrefabParent: 1
---- !u!1 &1388373813515260
+--- !u!1 &1995261480993362
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4118679278816174}
-  - component: {fileID: 114304028072512350}
+  - component: {fileID: 4059898797490184}
+  - component: {fileID: 114358075819984538}
   m_Layer: 0
-  m_Name: _GM
-  m_TagString: GameController
+  m_Name: LevelManager
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4118679278816174
+--- !u!4 &4059898797490184
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1388373813515260}
+  m_GameObject: {fileID: 1995261480993362}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -40,27 +40,14 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114304028072512350
+--- !u!114 &114358075819984538
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1388373813515260}
+  m_GameObject: {fileID: 1995261480993362}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a63b4195d6f354545bb8a9af19c42328, type: 3}
+  m_Script: {fileID: 11500000, guid: 2e72d912c8ea57741a7c80d5f6c38358, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aiMats:
-  - {fileID: 2100000, guid: f0d0fcd144930354f841019f5e8e0c01, type: 2}
-  - {fileID: 2100000, guid: d8a9dd23aef4d764cb9dc7e1c6c5758f, type: 2}
-  - {fileID: 2100000, guid: f670fe2ada9e4314ebeece1a3be3e284, type: 2}
-  bases:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  resourceNodes: []
-  serfCost: 0
-  knightCost: 0
-  startingResources: 0

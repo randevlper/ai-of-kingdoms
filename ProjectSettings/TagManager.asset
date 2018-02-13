@@ -8,6 +8,7 @@ TagManager:
   - AI2
   - AI3
   - AI4
+  - LevelManager
   layers:
   - Default
   - TransparentFX

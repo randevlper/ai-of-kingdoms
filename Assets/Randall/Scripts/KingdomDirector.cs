@@ -12,17 +12,18 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     [SerializeField] private float resources;
     public int resourceIncrease;
 
-    public Material colorMat;
-
     [Header("Spawn Settings")]
     public GameObject knightPrefab;
-    public int knightCost;
+    //public int knightCost;
     public GameObject knightSpawn;
 
     public GameObject serfPrefab;
-    public int serfCost;
+    //public int serfCost;
     public GameObject serfSpawn;
     public int maxSerfs;
+
+    //1 to 1
+    public float serfsToKnights;
 
     [Header("Other Things")]
     public GameManager manager;
@@ -38,6 +39,8 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     [Header("Heal Settings")]
     public float healthPerSecond;
+    public List<GameObject> guards;
+    public int guardsNum;
 
     [Header("Enemy Detection Settings")]
     public float detectionDistance;
@@ -77,13 +80,19 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
         CheckForEnemy();
 
         Invoke("SpawnKnight", 1f);
+        resources = manager.startingResources;
+        GetComponentInChildren<MeshRenderer>().material = manager.GetAIMaterial(tag);
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        if (serfs.Count < maxSerfs)
+        FindEmptySlot(null, ref serfs);
+        FindEmptySlot(null, ref knights);
+        FindEmptySlot(null, ref guards);
+        
+        if (((float)serfs.Count < (float)knights.Count / serfsToKnights) && serfs.Count < maxSerfs)
         {
             CreateSerf();
         }
@@ -98,22 +107,37 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             Knight knight = knights[i].GetComponent<Knight>();
             if (knight.currentState == Knight.States.IDLE)
             {
-                GameObject baseToAttack = manager.GetRandomKingdom(this).gameObject;
-                // for (int b = 0; b < manager.bases.Length; b++)
-                // {
-                //     if (manager.bases[b] != gameObject && manager.bases[b].activeInHierarchy)
-                //     {
-                //         baseToAttack = manager.bases[b];
-                //     }
-                // }
-                if (baseToAttack != null)
+                if (guards.Count < guardsNum)
                 {
-                    knight.SetAttackObjective(baseToAttack);
+                    FindEmptySlot(null, ref guards);
+                    guards.Add(knight.gameObject);
+                    knight.SetDefenseObjective(gameObject);
                 }
                 else
                 {
-                    Debug.Log("DEFEND ME");
-                    knight.SetDefenseObjective(gameObject);
+                    GameObject baseToAttack = null;
+                    if (!manager.IsWinner(gameObject))
+                    {
+                        //baseToAttack = manager.GetRandomKingdom(this).gameObject;
+                        baseToAttack = manager.GetClosestNotAlignedNode(transform.position, tag).gameObject;
+                    }
+
+                    // for (int b = 0; b < manager.bases.Length; b++)
+                    // {
+                    //     if (manager.bases[b] != gameObject && manager.bases[b].activeInHierarchy)
+                    //     {
+                    //         baseToAttack = manager.bases[b];
+                    //     }
+                    // }
+                    if (baseToAttack != null)
+                    {
+                        knight.SetAttackObjective(baseToAttack);
+                    }
+                    else
+                    {
+                        Debug.Log("DEFEND ME");
+                        knight.SetDefenseObjective(gameObject);
+                    }
                 }
             }
         }
@@ -121,7 +145,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     void SpawnKnight()
     {
-        CreateUnit(knightPrefab, knightCost, ref knights, knightSpawn);
+        CreateUnit(knightPrefab, manager.knightCost, ref knights, knightSpawn);
     }
 
     void DecideTarget()
@@ -149,7 +173,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             IAI objAI = obj.GetComponent<IAI>();
             if (objAI != null)
             {
-                objAI.SetAI(AINum, colorMat, this);
+                objAI.SetAI(AINum, manager.GetAIMaterial(tag), this);
             }
             return true;
         }
@@ -158,17 +182,17 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     bool CreateSerf()
     {
-        if (resources >= serfCost)
+        if (resources >= manager.serfCost)
         {
             GameObject obj = Instantiate(serfPrefab, serfSpawn.transform);
             if (!FindEmptySlot(obj, ref serfs))
             {
                 serfs.Add(obj);
             }
-            resources -= serfCost;
+            resources -= manager.serfCost;
 
             obj.tag = tag;
-            obj.transform.Find("Cylinder").GetComponent<MeshRenderer>().material = colorMat;
+            obj.transform.Find("Cylinder").GetComponent<MeshRenderer>().material = manager.GetAIMaterial(tag);
             obj.transform.position = serfSpawn.transform.position;
             GetResource objScript = obj.GetComponent<GetResource>();
             objScript.node = manager.GetClosestNode(transform.position).transform;
@@ -254,5 +278,44 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
         }
 
         Invoke("CheckForEnemy", detectionDelay);
+    }
+
+    public GameObject Detect()
+    {
+        GameObject enemy = null;
+        //Check if an enemy is visible and attack them
+        Collider[] hits =
+            Physics.OverlapSphere(transform.position, detectionDistance);
+
+        for (int i = 0; i < hits.Length; ++i)
+        {
+            //Debug.Log(hits[i].collider.name);
+            IDamageable other = hits[i].gameObject.GetComponent<IDamageable>();
+            //Will only return a gameObject with a diffrent tag
+            if (hits[i].gameObject.tag != tag && other != null)
+            {
+
+                if (enemy != null)
+                {
+                    //Attack only closest
+                    if (Vector3.Distance(hits[i].transform.position, transform.position)
+                        < Vector3.Distance(enemy.transform.position, transform.position))
+                    {
+                        enemy = hits[i].gameObject;
+                    }
+                }
+                else
+                {
+                    enemy = hits[i].gameObject;
+                    //SetState(Attack);
+                    // if (calls.Peek() != Attack && (!isRunning || kingdom.isEnemyAttacking))
+                    // {
+                    //     calls.Push(Attack);
+                    // }
+                }
+            }
+        }
+        //Invoke("Detect", detectionTime);
+        return enemy;
     }
 }

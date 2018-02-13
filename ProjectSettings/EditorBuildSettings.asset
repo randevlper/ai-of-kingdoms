@@ -4,4 +4,10 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Randall/_Scenes/Title.unity
+    guid: 12ac6966ccc24a040aec3ab62f829143
+  - enabled: 1
+    path: Assets/Randall/_Scenes/TriArena.unity
+    guid: 715d6c08de5170b42b8c842d4bfdf17f
