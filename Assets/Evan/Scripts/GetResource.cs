@@ -5,6 +5,8 @@ using UnityEngine.AI;
 
 public class GetResource : MonoBehaviour,IDamageable
 {
+    public bool debug = false;
+
     public GameObject explosion;
 
     public LayerMask mask;
@@ -178,7 +180,10 @@ public class GetResource : MonoBehaviour,IDamageable
 
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, detectionDistance);
+        if (debug == !false)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(transform.position, detectionDistance);
+        }
     }
 }
