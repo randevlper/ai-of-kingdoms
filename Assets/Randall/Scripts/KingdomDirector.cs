@@ -54,6 +54,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public List<Buffs> allBuffs;
 
     public GameObject GFX;
+    public bool isWinner;
 
     enum Personalities
     {
@@ -85,11 +86,17 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
         }
         CheckForEnemy();
 
-        Invoke("SpawnKnight", 1f);
+        Invoke("IncreaseResources", 1f);
+        //Invoke("SpawnKnight", 1f);
         resources = manager.startingResources;
         GetComponentInChildren<MeshRenderer>().material = manager.GetAIMaterial(tag);
         allBuffs = new List<Buffs>();
         allBuffs.Add(new Buffs(1f));
+    }
+
+    void IncreaseResources()
+    {
+        resources += resourceIncrease;
     }
 
     Buffs combineBuffs()
@@ -170,11 +177,39 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
                     {
                         Debug.Log("DEFEND ME");
                         knight.SetDefenseObjective(gameObject);
+                        if(!isWinner)
+                        {
+                            isWinner = true;
+                            Invoke("WINNING", 0.05f);
+                            Invoke("SendToStartScreen", 10f);
+                        }
                     }
                 }
             }
+
         }
     }
+
+    void WINNING()
+    {
+        RandomExplosion();
+        Invoke("WINNING", 0.05f);
+    }
+
+    void SendToStartScreen()
+    {
+        LevelManager.LoadScene(0);
+    }
+
+    void RandomExplosion()
+    {   
+        Vector3 position = transform.position + new Vector3(Random.Range(0,50), Random.Range(0,50), Random.Range(0,50));
+        GameObject obj = manager.GetLargeExplosion();
+        obj.transform.position = position;
+        obj.transform.eulerAngles = new Vector3(Random.Range(0,180), Random.Range(0,180), Random.Range(0,180));
+    }
+
+
 
     void SpawnKnight()
     {

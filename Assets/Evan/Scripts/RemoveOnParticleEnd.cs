@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RemoveOnParticleEnd : MonoBehaviour
 {
-    ParticleSystem ps;
+    public ParticleSystem ps;
 	// Use this for initialization
 	void Start ()
     {
@@ -19,8 +19,13 @@ public class RemoveOnParticleEnd : MonoBehaviour
     {
         if(ps.isStopped)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
 		
 	}
+
+    public void Setup()
+    {
+        ps.Play();
+    }
 }

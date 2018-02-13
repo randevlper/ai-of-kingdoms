@@ -89,11 +89,6 @@ public class Node : MonoBehaviour
                 _capturingTag = hits[i].tag;
                 _isBeingCaptured = true;
             }
-            else if (hits[i].tag != _capturingTag)
-            {
-                _isBeingCaptured = false;
-                //Pause capture
-            }
             if (hits[i].tag == _capturingTag)
             {
                 numCapturing++;
@@ -125,7 +120,9 @@ public class Node : MonoBehaviour
     void Capture()
     {
         
-        Instantiate(deathEffect, transform.position, Quaternion.identity);
+        GameObject explosion = manager.GetLargeExplosion();
+        explosion.transform.position = transform.position;
+
         tag = _capturingTag;
         meshRenderer.material = manager.GetAIMaterial(tag);
 

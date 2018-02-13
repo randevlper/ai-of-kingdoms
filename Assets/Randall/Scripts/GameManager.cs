@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     public int knightCost;
     public int startingResources;
 
+
+
     void Start()
     {
         QualitySettings.vSyncCount = 0;
@@ -207,6 +209,63 @@ public class GameManager : MonoBehaviour
         {
             return aiMats[3];
         }
+        return null;
+    }
+
+    [Header("Large Explosion")]
+    public GameObject largeExplosionPrefab;
+    public List<GameObject> largeExplosions = new List<GameObject>();
+    public int maxLargeExplosions = 100;
+    public GameObject GetLargeExplosion()
+    {
+        Debug.Log("Getting Large Explosion");
+        for (int i = 0; i < largeExplosions.Count; i++)
+        {
+            if (!largeExplosions[i].activeInHierarchy)
+            {
+                //return gameObject
+                GameObject obj = largeExplosions[i];
+                obj.SetActive(true);
+                obj.GetComponent<RemoveOnParticleEnd>().Setup();
+                return obj;
+            }
+        }
+
+        if (largeExplosions.Count < maxLargeExplosions)
+        {
+            GameObject obj = Instantiate(largeExplosionPrefab);
+            largeExplosions.Add(obj);
+            return obj;
+        }
+
+        return null;
+    }
+
+    [Header("Medium Explosion")]
+    public GameObject medExplosionPrefab;
+    public List<GameObject> medExplosions = new List<GameObject>();
+    public int maxMedExplosions = 200;
+    public GameObject GetMedExplosion()
+    {
+        for (int i = 0; i < medExplosions.Count; i++)
+        {
+            if (!medExplosions[i].activeInHierarchy)
+            {
+                //return gameObject
+                GameObject obj = medExplosions[i];
+                obj.SetActive(true);
+                obj.GetComponent<RemoveOnParticleEnd>().Setup();
+                return obj;
+            }
+        }
+
+        if (medExplosions.Count < maxMedExplosions)
+        {
+            GameObject obj = Instantiate(medExplosionPrefab);
+            medExplosions.Add(obj);
+            return obj;
+        }
+
         return null;
     }
 }
