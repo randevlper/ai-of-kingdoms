@@ -168,11 +168,17 @@ MonoBehaviour:
   mask:
     serializedVersion: 2
     m_Bits: 131072
-  detectionDistance: 10
+  workerMask:
+    serializedVersion: 2
+    m_Bits: 262144
+  detectionDistance: 5
   deathEffect: {fileID: 1345913960319698, guid: cef8e4fd9c7a221458036a33802cd9c0,
     type: 2}
   captureRate: 0
   pointsToCapture: 0
   guards: []
-  isDebug: 0
+  isDebug: 1
   meshRenderer: {fileID: 23471232145094222}
+  maxGatherers: 5
+  currentWorkers: 0
+  manager: {fileID: 0}

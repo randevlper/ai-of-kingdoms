@@ -9,7 +9,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     [Header("Stats")]
     public float maxHP;
 
-    [SerializeField] private float _HP;
+    [SerializeField] public float _HP;
     public float attack;
     public float speed;
     public float runningMultiplier;
