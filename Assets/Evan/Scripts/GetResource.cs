@@ -5,6 +5,8 @@ using UnityEngine.AI;
 
 public class GetResource : MonoBehaviour,IDamageable
 {
+    public GameObject explosion;
+
     public LayerMask mask;
 
     public Transform node;
@@ -153,6 +155,7 @@ public class GetResource : MonoBehaviour,IDamageable
 
         if (health <= 0)
         {
+            Instantiate(explosion, gameObject.transform.position, gameObject.transform.rotation);
             Destroy(gameObject);
         }
         Detect();
