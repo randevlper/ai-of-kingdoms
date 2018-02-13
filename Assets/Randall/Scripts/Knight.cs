@@ -32,6 +32,8 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     public NavMeshAgent navAgent;
     [HideInInspector] private Vector3 destination;
 
+    public LayerMask detectMask;
+
     //specific thing the knight is attacking
     private GameObject target;
 
@@ -174,7 +176,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         GameObject knight = null;
         //Check if an enemy is visible and attack them
         Collider[] hits =
-            Physics.OverlapSphere(transform.position, detectionDistance);
+            Physics.OverlapSphere(transform.position, detectionDistance, detectMask);
 
         for (int i = 0; i < hits.Length; ++i)
         {

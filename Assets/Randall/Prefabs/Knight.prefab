@@ -368,7 +368,7 @@ MonoBehaviour:
   speed: 20
   runningMultiplier: 2
   detectionDistance: 25
-  detectionTime: 0.25
+  detectionTime: 0.1
   meleeCooldown: 0.05
   meleeDistance: 2
   critChance: 0.3
@@ -378,6 +378,9 @@ MonoBehaviour:
   kingdom: {fileID: 0}
   AINum: 1
   navAgent: {fileID: 195380952310314144}
+  detectMask:
+    serializedVersion: 2
+    m_Bits: 2147876864
   flagMaterial: {fileID: 2100000, guid: f0d0fcd144930354f841019f5e8e0c01, type: 2}
   flag: {fileID: 1589181863648828}
   healPercent: 0.5

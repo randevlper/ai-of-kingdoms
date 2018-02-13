@@ -19,7 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4558572041418650}
-  m_Layer: 0
+  m_Layer: 31
   m_Name: GFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34,7 +34,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4419645139490796}
-  m_Layer: 0
+  m_Layer: 31
   m_Name: Knights
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51,7 +51,7 @@ GameObject:
   - component: {fileID: 4578509507111146}
   - component: {fileID: 23910611082315078}
   - component: {fileID: 33135013435481036}
-  m_Layer: 0
+  m_Layer: 31
   m_Name: Serfs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69,7 +69,7 @@ GameObject:
   - component: {fileID: 33484065280647718}
   - component: {fileID: 23299372097106098}
   - component: {fileID: 64277635732361446}
-  m_Layer: 0
+  m_Layer: 31
   m_Name: Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 4869861577766124}
   - component: {fileID: 114095069268698324}
   - component: {fileID: 135565521832337024}
-  m_Layer: 0
+  m_Layer: 31
   m_Name: Kingdom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -273,6 +273,7 @@ MonoBehaviour:
   knightPrefab: {fileID: 1888254243332444, guid: 44d683023a3a6fe448d9549eaa2a9eec,
     type: 2}
   knightSpawn: {fileID: 1688907359539898}
+  maxKnights: 0
   serfPrefab: {fileID: 1030490685686898, guid: 4732f61c5a5cb5648b2e2b7e904420d1, type: 2}
   serfSpawn: {fileID: 1728478889945828}
   maxSerfs: 0
