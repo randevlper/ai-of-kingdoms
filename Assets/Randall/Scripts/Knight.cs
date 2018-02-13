@@ -24,6 +24,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     public float critChance;
     public float critMultiplier;
 
+    public GameObject deathEffect;
 
     public KingdomDirector kingdom;
     public int AINum;
@@ -208,6 +209,11 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 
     void Detection()
     {
+        if (detectionTimer > detectionTime)
+        {
+            detectionTimer = 0;
+            return;
+        }
         GameObject other = Detect();
         if (other != null &&
             (currentState == States.ATTACK ||
@@ -272,6 +278,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     void Death()
     {
         kingdom.knights.Remove(gameObject);
+        Instantiate(deathEffect, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
 

@@ -16,6 +16,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public GameObject knightPrefab;
     //public int knightCost;
     public GameObject knightSpawn;
+    public int maxKnights;
 
     public GameObject serfPrefab;
     //public int serfCost;
@@ -41,6 +42,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public float healthPerSecond;
     public List<GameObject> guards;
     public int guardsNum;
+    public GameObject deathEffect;
 
     [Header("Enemy Detection Settings")]
     public float detectionDistance;
@@ -227,6 +229,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
 
     void Death()
     {
+        Instantiate(deathEffect, transform.position, Quaternion.identity);
         gameObject.SetActive(false);
         //Destroy(gameObject);
     }

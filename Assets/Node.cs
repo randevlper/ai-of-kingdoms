@@ -6,6 +6,7 @@ public class Node : MonoBehaviour
 {
     public LayerMask mask;
     public float detectionDistance;
+    public GameObject deathEffect;
 
     //These are only guards of the same kingdom
     public float captureRate;
@@ -72,6 +73,7 @@ public class Node : MonoBehaviour
         {
             _capturingTag = null;
             _capturePoints = 0;
+            _isBeingCaptured = true;
         }
 
         for (int i = 0; i < hits.Length; i++)
@@ -89,6 +91,7 @@ public class Node : MonoBehaviour
             if (hits[i].tag == _capturingTag)
             {
                 numCapturing++;
+                
             }
         }
 
@@ -101,12 +104,13 @@ public class Node : MonoBehaviour
             }
         }
     }
-
+    
     //Send message on capture to guards of old kingdom that they are now IDLE
     //Clear guards array
     //Send message to kingdom that their node is caputred
     void Capture()
     {
+        Instantiate(deathEffect, transform.position, Quaternion.identity);
         tag = _capturingTag;
         meshRenderer.material = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().GetAIMaterial(tag);
     }

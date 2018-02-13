@@ -169,6 +169,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 131072
   detectionDistance: 10
+  deathEffect: {fileID: 1345913960319698, guid: cef8e4fd9c7a221458036a33802cd9c0,
+    type: 2}
   captureRate: 0
   pointsToCapture: 0
   guards: []
