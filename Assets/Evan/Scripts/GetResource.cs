@@ -148,6 +148,8 @@ public class GetResource : MonoBehaviour,IDamageable
     // Update is called once per frame
     void Update()
     {
+        anim.gameObject.transform.localPosition = new Vector3(0, -1, 0);
+
         switch (state.Peek())
         {
             case States.GATHER:
