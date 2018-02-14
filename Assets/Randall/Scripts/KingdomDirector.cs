@@ -129,7 +129,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
                 nodes.Add(sortedNodes[i]);
             }
         }
-        return nodes[Random.Range(0, nodes.Count < range ? nodes.Count : range )];
+        return nodes[Random.Range(0, nodes.Count < range ? nodes.Count : range)];
     }
 
     // Update is called once per frame
@@ -164,7 +164,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             {
                 if (((float)guards.Count < (guardsPercent * (float)knights.Count)) && (guards.Count <= maxGuards))
                 {
-                    FindEmptySlot(null, ref guards);
+                    //FindEmptySlot(null, ref guards);
                     guards.Add(knight.gameObject);
                     knight.SetDefenseObjective(gameObject);
                 }
@@ -232,11 +232,12 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
         GameObject obj = CreateUnit(knightPrefab, manager.knightCost, ref knights, knightSpawn);
         if (obj != null)
         {
+            Knight orginKnight = knightPrefab.GetComponent<Knight>();
+
             Buffs knightBuffs = combineBuffs();
             Knight knight = obj.GetComponent<Knight>();
-            knight.maxHP *= knightBuffs.knightHealthMult;
-            knight.attack *= knightBuffs.knightAttackMult;
-
+            knight.maxHP =  orginKnight.maxHP * knightBuffs.knightHealthMult;
+            knight.attack = orginKnight.attack * knightBuffs.knightAttackMult;
             knight._HP = maxHP;
         }
 
@@ -256,23 +257,54 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     {
         if (resources >= cost)
         {
-            GameObject obj = Instantiate(prefab, spawn.transform);
-
-            if (!FindEmptySlot(obj, ref store))
-            {
-                store.Add(obj);
-            }
             resources -= cost;
+            GetUnit(prefab,ref store, spawn);
+            // GameObject obj = Instantiate(prefab, spawn.transform);
 
-            IAI objAI = obj.GetComponent<IAI>();
-            if (objAI != null)
-            {
-                objAI.SetAI(AINum, manager.GetAIMaterial(tag), this);
-            }
-            return obj;
+            // if (!FindEmptySlot(obj, ref store))
+            // {
+            //     store.Add(obj);
+            // }
+            // resources -= cost;
+
+            // IAI objAI = obj.GetComponent<IAI>();
+            // if (objAI != null)
+            // {
+            //     objAI.SetAI(AINum, manager.GetAIMaterial(tag), this);
+            // }
+            // return obj;
         }
         return null;
     }
+
+    GameObject GetUnit(GameObject prefab, ref List<GameObject> store, GameObject spawn)
+    {
+        for (int i = 0; i < store.Count; i++)
+        {
+            if (!store[i].activeInHierarchy)
+            {
+                store[i].SetActive(true);
+                store[i].transform.position = spawn.transform.position;
+                IAI objAIPool = store[i].GetComponent<IAI>();
+                if (objAIPool != null)
+                {
+                    objAIPool.SetAI(AINum, manager.GetAIMaterial(tag), this);
+                }
+                return store[i];
+            }
+        }
+
+        GameObject obj = Instantiate(prefab, spawn.transform);
+        IAI objAI = obj.GetComponent<IAI>();
+        if (objAI != null)
+        {
+            objAI.SetAI(AINum, manager.GetAIMaterial(tag), this);
+        }
+        store.Add(obj);
+        return obj;
+    }
+
+
 
     GameObject CreateSerf()
     {
@@ -338,7 +370,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             IHealable otherHealth = other.GetComponent<IHealable>();
             if (otherHealth != null)
             {
-                otherHealth.Heal(healthPerSecond * Time.deltaTime);
+                otherHealth.Heal(otherHealth.GetMaxHealth() * healthPerSecond * Time.deltaTime);
             }
         }
     }

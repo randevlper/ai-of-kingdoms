@@ -121,7 +121,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         else
         {
             anim.SetBool("isMoving", true);
-            anim.transform.localPosition = new Vector3(0,-1,0);
+            anim.transform.localPosition = new Vector3(0, -1, 0);
         }
 
         CheckHealth();
@@ -292,13 +292,13 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     //TODO: isDead
     void Death()
     {
-        kingdom.knights.Remove(gameObject);
+        //kingdom.knights.Remove(gameObject);
         GameObject explosion = kingdom.manager.GetMedExplosion(tag);
         if (explosion != null)
         {
             explosion.transform.position = transform.position;
         }
-        Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 
     public void Heal(float health)
@@ -308,6 +308,11 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
         {
             _HP = maxHP;
         }
+    }
+
+    public float GetMaxHealth()
+    {
+        return maxHP;
     }
 
     public bool GetIsHealing()
@@ -337,6 +342,12 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 
         flag.GetComponent<MeshRenderer>().material = mat;
         kingdom = k;
+
+        _HP = maxHP;
+        //Invoke("Detect", 0);        
+        needsHealing = false;
+        _state = new Stack<States>();
+        _state.Push(States.IDLE);
     }
 
 
