@@ -10,6 +10,7 @@ public interface IDamageable
 public interface IHealable
 {
     void Heal(float heal);
+    float GetMaxHealth();
     bool GetIsHealing();
 }
 

@@ -4124,6 +4124,16 @@ Prefab:
       propertyPath: guardsPercent
       value: 0.25
       objectReference: {fileID: 0}
+    - target: {fileID: 114095069268698324, guid: 9dfece46cdc911a41b1a0e7eab65688c,
+        type: 2}
+      propertyPath: healthPerSecond
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 114095069268698324, guid: 9dfece46cdc911a41b1a0e7eab65688c,
+        type: 2}
+      propertyPath: maxGuards
+      value: 20
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 9dfece46cdc911a41b1a0e7eab65688c, type: 2}
   m_IsPrefabParent: 0
@@ -8315,6 +8325,16 @@ Prefab:
       propertyPath: guardsPercent
       value: 0.25
       objectReference: {fileID: 0}
+    - target: {fileID: 114095069268698324, guid: 9dfece46cdc911a41b1a0e7eab65688c,
+        type: 2}
+      propertyPath: healthPerSecond
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 114095069268698324, guid: 9dfece46cdc911a41b1a0e7eab65688c,
+        type: 2}
+      propertyPath: maxGuards
+      value: 20
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 9dfece46cdc911a41b1a0e7eab65688c, type: 2}
   m_IsPrefabParent: 0
@@ -9834,6 +9854,16 @@ Prefab:
         type: 2}
       propertyPath: guardsPercent
       value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 114095069268698324, guid: 9dfece46cdc911a41b1a0e7eab65688c,
+        type: 2}
+      propertyPath: healthPerSecond
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 114095069268698324, guid: 9dfece46cdc911a41b1a0e7eab65688c,
+        type: 2}
+      propertyPath: maxGuards
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 9dfece46cdc911a41b1a0e7eab65688c, type: 2}
