@@ -124,11 +124,9 @@ public class Node : MonoBehaviour
     //Send message to kingdom that their node is caputred
     void Capture()
     {
-
-        GameObject explosion = manager.GetLargeExplosion();
-        explosion.transform.position = transform.position;
-
         tag = _capturingTag;
+        GameObject explosion = manager.GetLargeExplosion(tag);
+        explosion.transform.position = transform.position;
         meshRenderer.material = manager.GetAIMaterial(tag);
 
         Buffs newBuff = new Buffs(0f);

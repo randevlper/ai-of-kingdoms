@@ -280,7 +280,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     void Death()
     {
         kingdom.knights.Remove(gameObject);
-        GameObject explosion = kingdom.manager.GetMedExplosion();
+        GameObject explosion = kingdom.manager.GetMedExplosion(tag);
         if (explosion != null)
         {
             explosion.transform.position = transform.position;

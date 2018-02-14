@@ -268,16 +268,20 @@ public class GameManager : MonoBehaviour
 
     [Header("Large Explosion")]
     public GameObject largeExplosionPrefab;
+    public GameObject largeExplosionPrefabRed;
+    public GameObject largeExplosionPrefabBlue;
+    public GameObject largeExplosionPrefabGreen;
+
     public List<GameObject> largeExplosions = new List<GameObject>();
     public int maxLargeExplosions = 100;
     public List<AudioClip> largeExplosionSounds;
 
-    public GameObject GetLargeExplosion()
+    public GameObject GetLargeExplosion(string t)
     {
-        Debug.Log("Getting Large Explosion");
+        //Debug.Log("Getting Large Explosion");
         for (int i = 0; i < largeExplosions.Count; i++)
         {
-            if (!largeExplosions[i].activeInHierarchy)
+            if (!largeExplosions[i].activeInHierarchy && largeExplosions[i].tag == t)
             {
                 //return gameObject
                 GameObject obj = largeExplosions[i];
@@ -289,7 +293,22 @@ public class GameManager : MonoBehaviour
 
         if (largeExplosions.Count < maxLargeExplosions)
         {
-            GameObject obj = Instantiate(largeExplosionPrefab);
+            GameObject obj = null;
+            switch (t)
+            {
+                case "AI1":
+                    obj = Instantiate(largeExplosionPrefabRed);
+                    break;
+                case "AI2":
+                    obj = Instantiate(largeExplosionPrefabBlue);
+                    break;
+                case "AI3":
+                    obj = Instantiate(largeExplosionPrefabGreen);
+                    break;
+                default:
+                    obj = Instantiate(largeExplosionPrefab);
+                    break;
+            }
             largeExplosions.Add(obj);
             return obj;
         }
@@ -299,19 +318,23 @@ public class GameManager : MonoBehaviour
 
     [Header("Medium Explosion")]
     public GameObject medExplosionPrefab;
+    public GameObject medExplosionPrefabRed;
+    public GameObject medExplosionPrefabBlue;
+    public GameObject medExplosionPrefabGreen;
+
     public List<GameObject> medExplosions = new List<GameObject>();
     public int maxMedExplosions = 200;
     public List<AudioClip> medExplosionSounds;
-    public GameObject GetMedExplosion()
+    public GameObject GetMedExplosion(string t)
     {
         for (int i = 0; i < medExplosions.Count; i++)
         {
-            if (!medExplosions[i].activeInHierarchy)
+            if (!medExplosions[i].activeInHierarchy && medExplosions[i].tag == t)
             {
                 //return gameObject
                 GameObject obj = medExplosions[i];
                 obj.SetActive(true);
-                obj.GetComponent<AudioSource>().clip = medExplosionSounds[Random.Range(0,medExplosionSounds.Count-1)];
+                obj.GetComponent<AudioSource>().clip = medExplosionSounds[Random.Range(0, medExplosionSounds.Count - 1)];
                 obj.GetComponent<RemoveOnParticleEnd>().Setup();
                 return obj;
             }
@@ -319,7 +342,22 @@ public class GameManager : MonoBehaviour
 
         if (medExplosions.Count < maxMedExplosions)
         {
-            GameObject obj = Instantiate(medExplosionPrefab);
+            GameObject obj = null;
+            switch (t)
+            {
+                case "AI1":
+                    obj = Instantiate(medExplosionPrefabRed);
+                    break;
+                case "AI2":
+                    obj = Instantiate(medExplosionPrefabBlue);
+                    break;
+                case "AI3":
+                    obj = Instantiate(medExplosionPrefabGreen);
+                    break;
+                default:
+                    obj = Instantiate(medExplosionPrefab);
+                    break;
+            }
             medExplosions.Add(obj);
             return obj;
         }

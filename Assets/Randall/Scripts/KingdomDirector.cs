@@ -190,7 +190,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
                     }
                     else
                     {
-                        Debug.Log("DEFEND ME");
+                        //Debug.Log("DEFEND ME");
                         knight.SetDefenseObjective(gameObject);
                         if (!isWinner)
                         {
@@ -219,7 +219,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     void RandomExplosion()
     {
         Vector3 position = transform.position + new Vector3(Random.Range(-50, 50), Random.Range(0, 50), Random.Range(-50, 50));
-        GameObject obj = manager.GetLargeExplosion();
+        GameObject obj = manager.GetLargeExplosion(tag);
         obj.transform.position = position;
         obj.transform.eulerAngles = new Vector3(Random.Range(0, 180), Random.Range(0, 180), Random.Range(0, 180));
     }
