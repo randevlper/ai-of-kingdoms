@@ -7,6 +7,8 @@ public class GetResource : MonoBehaviour,IDamageable
 {
     public bool debug = false;
 
+    public Animator anim;
+
     public GameObject explosion;
 
     public LayerMask mask;
@@ -19,7 +21,9 @@ public class GetResource : MonoBehaviour,IDamageable
     public float resources;
     public float gatherSpeed;
     public int backpackCapacity;
-    public float detectionDistance;
+    public float detectionDistanceFlee;
+    public float detectionDistanceWork;
+    float activeDetectionDistance;
 
     public float fleeSpeed;
 
@@ -45,7 +49,7 @@ public class GetResource : MonoBehaviour,IDamageable
     {
         
         Collider[] hits =
-        Physics.OverlapSphere(transform.position, detectionDistance, mask);
+        Physics.OverlapSphere(transform.position, activeDetectionDistance, mask);
         for (int i = 0; i < hits.Length; ++i)
         {
 
@@ -87,6 +91,8 @@ public class GetResource : MonoBehaviour,IDamageable
         {
             Vector3 dir = (closestKnight.transform.position - agent.transform.position).normalized;
             agent.destination = agent.transform.position - (dir * fleeSpeed);
+
+            activeDetectionDistance = detectionDistanceFlee;
         }
         else
         {
@@ -96,6 +102,7 @@ public class GetResource : MonoBehaviour,IDamageable
 
     void collectDeliver()
     {
+        activeDetectionDistance = detectionDistanceWork;
         if (toNode == true)
         {
             agent.destination = node.position;
@@ -171,10 +178,12 @@ public class GetResource : MonoBehaviour,IDamageable
             {
                 if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
                 {
+                    anim.SetBool("isMoving",false);
                     return true;
                 }
             }
         }
+        anim.SetBool("isMoving", true);
         return false;
     }
 
@@ -183,7 +192,7 @@ public class GetResource : MonoBehaviour,IDamageable
         if (debug == !false)
         {
             Gizmos.color = Color.blue;
-            Gizmos.DrawWireSphere(transform.position, detectionDistance);
+            Gizmos.DrawWireSphere(transform.position, activeDetectionDistance);
         }
     }
 }
