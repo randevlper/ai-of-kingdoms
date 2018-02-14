@@ -35,7 +35,7 @@ public class CameraController : MonoBehaviour
             inputVertical = -1;
         }
 
-        transform.Translate(new Vector3(input.x, inputVertical, input.y) * (Input.GetKey(KeyCode.LeftShift) ? fastMoveSpeed : movespeed) * Time.deltaTime);
+        transform.Translate(new Vector3(input.x, inputVertical, input.y) * (Input.GetKey(KeyCode.LeftShift) ? fastMoveSpeed : movespeed));
         Vector2 mouseInput = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
 
 

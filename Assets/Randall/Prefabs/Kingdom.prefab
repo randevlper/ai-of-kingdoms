@@ -284,7 +284,8 @@ MonoBehaviour:
   attackPos: {fileID: 0}
   healthPerSecond: 10
   guards: []
-  guardsNum: 0
+  guardsPercent: 0
+  maxGuards: 30
   deathEffect: {fileID: 1345913960319698, guid: cef8e4fd9c7a221458036a33802cd9c0,
     type: 2}
   detectionDistance: 25
@@ -292,6 +293,7 @@ MonoBehaviour:
   isEnemyAttacking: 0
   isDebug: 0
   GFX: {fileID: 1314585821184090}
+  isWinner: 0
 --- !u!135 &135565521832337024
 SphereCollider:
   m_ObjectHideFlags: 1

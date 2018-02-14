@@ -43,6 +43,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
     [Header("Color Settings")]
     public Material flagMaterial;
     public GameObject flag;
+    public Animator anim;
 
 
     private bool needsHealing;
@@ -113,6 +114,16 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
             navAgent.speed = speed;
         }
 
+        if (currentState == States.IDLE)
+        {
+            anim.SetBool("isMoving", false);
+        }
+        else
+        {
+            anim.SetBool("isMoving", true);
+            anim.transform.localPosition = new Vector3(0,-1,0);
+        }
+
         CheckHealth();
         switch (currentState)
         {
@@ -145,6 +156,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
 
     void Idle()
     {
+
         navAgent.destination = transform.position;
         Detection();
         //Stand still and detect
@@ -158,6 +170,7 @@ public class Knight : MonoBehaviour, IDamageable, IHealable, IAI
             IDamageable other = target.GetComponent<IDamageable>();
             if (other != null && meleeTimer > meleeCooldown)
             {
+                anim.SetTrigger("Attack");
                 if (Random.Range(0f, 1f) < critChance)
                 {
                     other.Damage(critMultiplier * attack);

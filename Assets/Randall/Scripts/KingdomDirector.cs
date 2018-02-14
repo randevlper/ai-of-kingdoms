@@ -42,6 +42,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
     public float healthPerSecond;
     public List<GameObject> guards;
     public float guardsPercent;
+    public int maxGuards;
     public GameObject deathEffect;
 
     [Header("Enemy Detection Settings")]
@@ -128,7 +129,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
                 nodes.Add(sortedNodes[i]);
             }
         }
-        return nodes[Random.Range(0, range)];
+        return nodes[Random.Range(0, nodes.Count < range ? nodes.Count : range )];
     }
 
     // Update is called once per frame
@@ -161,7 +162,7 @@ public class KingdomDirector : MonoBehaviour, IDamageable, IStorage
             Knight knight = knights[i].GetComponent<Knight>();
             if (knight.currentState == Knight.States.IDLE)
             {
-                if ((float)guards.Count < (guardsPercent * (float)knights.Count))
+                if (((float)guards.Count < (guardsPercent * (float)knights.Count)) && (guards.Count <= maxGuards))
                 {
                     FindEmptySlot(null, ref guards);
                     guards.Add(knight.gameObject);

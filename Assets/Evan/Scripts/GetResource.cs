@@ -60,7 +60,7 @@ public class GetResource : MonoBehaviour,IDamageable
                 hits[i].GetComponent<Collider>().gameObject.name.Split('(')[0] == "Knight")
             {
                 state.Push(States.FLEE);
-                Debug.Log("Fleeing"); 
+                //Debug.Log("Fleeing"); 
                 GameObject other = hits[i].gameObject;
                 //Tell worker to run away
                 if (closestKnight == null)
@@ -78,7 +78,7 @@ public class GetResource : MonoBehaviour,IDamageable
             &&
             state.Peek() != States.GATHER)
         {
-            Debug.Log("Gathering");
+            //Debug.Log("Gathering");
             state.Push(States.GATHER);
         }
     }

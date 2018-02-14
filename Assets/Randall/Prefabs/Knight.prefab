@@ -2145,7 +2145,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1888254243332444}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 10.637621, y: 0.5, z: -15.25}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4949149442336312}
@@ -2501,6 +2501,7 @@ MonoBehaviour:
     m_Bits: 2147876864
   flagMaterial: {fileID: 2100000, guid: f0d0fcd144930354f841019f5e8e0c01, type: 2}
   flag: {fileID: 1589181863648828}
+  anim: {fileID: 95926909902938566}
   healPercent: 0.5
   criticalPercent: 0.25
   isDebug: 0
